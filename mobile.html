@@ -8,77 +8,118 @@
     <style>
         .orange-btn {
             transition: transform 0.1s active;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
         }
         .orange-btn:active { transform: scale(0.96); }
+        .nav-link-m { @apply text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-orange-500; }
     </style>
 </head>
-<body class="bg-slate-900 text-white font-sans antialiased pb-12">
+<body class="bg-slate-900 text-white font-sans antialiased flex flex-col min-h-screen">
 
     <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
         <div class="max-w-xl mx-auto px-4 h-16 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <span class="bg-orange-500 text-white px-2 py-1 rounded-lg text-[10px] font-black uppercase">MOBILE</span>
-                <h1 class="text-sm font-black tracking-tighter uppercase text-orange-500">BIZTOOLHUB</h1>
+            <div class="flex flex-col">
+                <h1 class="text-xs font-black tracking-tighter uppercase text-orange-500">BIZTOOLHUB</h1>
+                <nav class="flex gap-3 mt-1">
+                    <a href="mobile.html" class="nav-link-m text-orange-500">Dash</a>
+                    <a href="m-about.html" class="nav-link-m">About</a>
+                    <a href="index.html" class="nav-link-m border-l border-slate-600 pl-3">Desktop</a>
+                </nav>
             </div>
-            <a href="index.html" class="text-[9px] font-black uppercase text-slate-400 border border-slate-700 px-3 py-1 rounded-full">Back to Desktop</a>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-xl mx-auto p-4">
+    <main class="max-w-xl mx-auto p-4 flex-grow w-full">
         
-        <section class="grid grid-cols-3 gap-3 mb-8">
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 text-center">
-                <span class="block text-[8px] font-black text-slate-500 uppercase">Mileage</span>
-                <p id="stat-mileage" class="text-xl font-black text-white">0</p>
+        <section class="grid grid-cols-3 gap-3 mb-6">
+            <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 text-center">
+                <span class="block text-[7px] font-black text-slate-500 uppercase">KM</span>
+                <p id="stat-mileage" class="text-lg font-black text-white">0</p>
             </div>
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 text-center">
-                <span class="block text-[8px] font-black text-slate-500 uppercase">Leads</span>
-                <p id="stat-leads" class="text-xl font-black text-orange-400">0</p>
+            <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 text-center">
+                <span class="block text-[7px] font-black text-slate-500 uppercase">Leads</span>
+                <p id="stat-leads" class="text-lg font-black text-orange-400">0</p>
             </div>
-            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 text-center">
-                <span class="block text-[8px] font-black text-slate-500 uppercase">Jobs</span>
-                <p id="stat-jobs" class="text-xl font-black text-orange-400">0</p>
+            <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 text-center">
+                <span class="block text-[7px] font-black text-slate-500 uppercase">Jobs</span>
+                <p id="stat-jobs" class="text-lg font-black text-orange-400">0</p>
             </div>
         </section>
 
-        <section class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-                <a href="m-vehicles.html" class="orange-btn bg-orange-500 p-8 rounded-[40px] text-center">
-                    <span class="text-4xl block mb-2">🚚</span>
-                    <span class="text-xs font-black uppercase tracking-widest">Fleet Log</span>
+        <section class="space-y-3">
+            <div class="grid grid-cols-2 gap-3">
+                <a href="m-vehicles.html" class="orange-btn bg-orange-500 p-6 rounded-[32px] text-center">
+                    <span class="text-3xl block">🚚</span>
+                    <span class="text-[10px] font-black uppercase mt-2 block">Fleet Log</span>
                 </a>
-                <a href="m-bookings.html" class="orange-btn bg-orange-500 p-8 rounded-[40px] text-center">
-                    <span class="text-4xl block mb-2">📅</span>
-                    <span class="text-xs font-black uppercase tracking-widest">Bookings</span>
-                </a>
-                <a href="m-diet.html" class="orange-btn bg-orange-600 p-8 rounded-[40px] text-center">
-                    <span class="text-4xl block mb-2">🥗</span>
-                    <span class="text-xs font-black uppercase tracking-widest">Diet Log</span>
-                </a>
-                <a href="m-medical.html" class="orange-btn bg-orange-600 p-8 rounded-[40px] text-center">
-                    <span class="text-4xl block mb-2">🏥</span>
-                    <span class="text-xs font-black uppercase tracking-widest">Health Hub</span>
+                <a href="m-bookings.html" class="orange-btn bg-orange-500 p-6 rounded-[32px] text-center">
+                    <span class="text-3xl block">📅</span>
+                    <span class="text-[10px] font-black uppercase mt-2 block">Bookings</span>
                 </a>
             </div>
 
-            <div class="flex flex-col gap-3 pt-2">
-                <a href="m-marketing.html" class="bg-slate-800 border border-orange-500/30 p-5 rounded-3xl flex justify-between items-center px-8">
-                    <span class="text-xs font-black uppercase tracking-widest">Marketing Pipeline</span>
-                    <span class="text-xl">📢</span>
+            <div class="grid grid-cols-2 gap-3">
+                <a href="m-budget.html" class="orange-btn bg-orange-600 p-6 rounded-[32px] text-center">
+                    <span class="text-3xl block">💰</span>
+                    <span class="text-[10px] font-black uppercase mt-2 block">Budget</span>
                 </a>
-                <a href="m-schedule.html" class="bg-slate-800 border border-orange-500/30 p-5 rounded-3xl flex justify-between items-center px-8">
-                    <span class="text-xs font-black uppercase tracking-widest">Weekly Schedule</span>
-                    <span class="text-xl">⏳</span>
+                <a href="m-invoices.html" class="orange-btn bg-orange-600 p-6 rounded-[32px] text-center">
+                    <span class="text-3xl block">📄</span>
+                    <span class="text-[10px] font-black uppercase mt-2 block">Invoices</span>
                 </a>
-                <a href="m-exercise.html" class="bg-slate-800 border border-orange-500/30 p-5 rounded-3xl flex justify-between items-center px-8">
-                    <span class="text-xs font-black uppercase tracking-widest">Training Log</span>
-                    <span class="text-xl">💪</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <a href="m-diet.html" class="orange-btn bg-slate-800 border border-orange-500/50 p-6 rounded-[32px] text-center">
+                    <span class="text-3xl block">🥗</span>
+                    <span class="text-[10px] font-black uppercase mt-2 block text-orange-500">Diet</span>
+                </a>
+                <a href="m-medical.html" class="orange-btn bg-slate-800 border border-orange-500/50 p-6 rounded-[32px] text-center">
+                    <span class="text-3xl block">🏥</span>
+                    <span class="text-[10px] font-black uppercase mt-2 block text-orange-500">Medical</span>
+                </a>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <a href="m-marketing.html" class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center px-6">
+                    <span class="text-[10px] font-black uppercase tracking-widest">Marketing Hub</span>
+                    <span class="text-lg">📢</span>
+                </a>
+                <a href="m-schedule.html" class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center px-6">
+                    <span class="text-[10px] font-black uppercase tracking-widest">Weekly Schedule</span>
+                    <span class="text-lg">⏳</span>
+                </a>
+                <a href="m-exercise.html" class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex justify-between items-center px-6">
+                    <span class="text-[10px] font-black uppercase tracking-widest">Exercise Log</span>
+                    <span class="text-lg">💪</span>
                 </a>
             </div>
         </section>
 
     </main>
+
+    <footer class="bg-black py-8 px-6 mt-6 border-t border-slate-800">
+        <div class="max-w-xl mx-auto">
+            <nav class="grid grid-cols-2 gap-4 mb-8 text-center">
+                <a href="m-privacy.html" class="nav-link-m">Privacy</a>
+                <a href="m-terms.html" class="nav-link-m">Terms</a>
+                <a href="m-contact.html" class="nav-link-m">Contact</a>
+                <a href="mobile.html" class="nav-link-m">Mobile Home</a>
+            </nav>
+
+            <div class="text-center">
+                <h4 class="text-[9px] font-black uppercase tracking-[0.2em] mb-3 text-slate-500">Disclaimer</h4>
+                <p class="text-[8px] leading-relaxed text-slate-600 uppercase font-bold">
+                    System for Field Admin use only. All data stored locally on this device. 
+                    Verify critical data manually.
+                </p>
+                <p class="mt-4 text-[7px] text-slate-700 font-black">BUILD 2026.02 // GEELONG VIC</p>
+            </div>
+        </div>
+    </footer>
 
     <script>
         window.onload = () => {
