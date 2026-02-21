@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle & Mileage Manager | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .tab-btn { border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .tab-btn.active { border-color: #2563eb; color: #1e40af; background: #eff6ff; }
+        
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+
+    <header class="bg-white border-b sticky top-0 z-50 no-print">
+        <div class="max-w-[1600px] mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-black text-blue-600 uppercase tracking-tighter">BIZTOOLHUB</a>
+            <div class="flex gap-3">
+                <button onclick="exportCSV()" class="bg-green-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-green-700 transition shadow-lg">Export CSV (Tax)</button>
+                <button onclick="resetData()" class="text-slate-400 text-xs font-bold hover:text-red-500">Reset</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto px-6 py-8">
+        
+        <div class="flex justify-between items-end mb-6 border-b border-slate-200">
+            <div class="flex gap-2">
+                <button id="tab-v1" onclick="switchVehicle('v1')" class="tab-btn active px-8 py-3 rounded-t-2xl font-black text-sm uppercase tracking-widest text-slate-500 hover:bg-slate-100">Vehicle 1</button>
+                <button id="tab-v2" onclick="switchVehicle('v2')" class="tab-btn px-8 py-3 rounded-t-2xl font-black text-sm uppercase tracking-widest text-slate-500 hover:bg-slate-100">Vehicle 2</button>
+            </div>
+            <div class="pb-3 flex items-center gap-3">
+                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Alias:</label>
+                <input type="text" id="veh-name" oninput="saveFixedCosts()" placeholder="e.g. Work Ute / Mazda 3" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-bold outline-none text-blue-700 w-48">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-slate-900 p-6 rounded-3xl text-white shadow-lg relative overflow-hidden">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">True Running Cost (12m)</h3>
+                <p class="text-3xl font-black text-white">$<span id="dash-total-cost">0</span></p>
+                <p class="text-[9px] font-bold text-slate-500 uppercase mt-2">Inc. Rego, Ins, Maint & Deprec.</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Claimable Work Travel</h3>
+                <p class="text-3xl font-black text-blue-600"><span id="dash-claim-km">0</span><span class="text-sm text-slate-400 ml-1">km</span></p>
+                <p class="text-[9px] font-bold text-slate-500 uppercase mt-2">Logged in Mileage Book</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Cost Per Kilometer</h3>
+                <p class="text-3xl font-black text-rose-600">$<span id="dash-cpk">0.00</span></p>
+                <p class="text-[9px] font-bold text-slate-500 uppercase mt-2">Total Cost / Total Distance</p>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-3xl border border-blue-100 shadow-sm">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-blue-400 mb-2">Next Due Renewal</h3>
+                <p id="dash-next-due" class="text-sm font-black text-blue-800 leading-tight">All Good</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <div class="lg:w-[500px] flex-shrink-0 space-y-6">
+                
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-100 pb-2">Annual Fixed Costs & Deprec.</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-500 ml-1">Registration ($)</label>
+                            <input type="number" id="fc-rego" oninput="saveFixedCosts()" placeholder="0" class="w-full mt-1 p-2 bg-slate-50 rounded-lg text-xs font-bold outline-none border border-slate-100">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-500 ml-1">Rego Due Date</label>
+                            <input type="date" id="fc-rego-date" oninput="saveFixedCosts()" class="w-full mt-1 p-2 bg-slate-50 rounded-lg text-[10px] font-bold outline-none border border-slate-100 uppercase">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-500 ml-1">Insurance ($)</label>
+                            <input type="number" id="fc-ins" oninput="saveFixedCosts()" placeholder="0" class="w-full mt-1 p-2 bg-slate-50 rounded-lg text-xs font-bold outline-none border border-slate-100">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black uppercase text-slate-500 ml-1">Ins. Due Date</label>
+                            <input type="date" id="fc-ins-date" oninput="saveFixedCosts()" class="w-full mt-1 p-2 bg-slate-50 rounded-lg text-[10px] font-bold outline-none border border-slate-100 uppercase">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <h3 class="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">Vehicle Depreciation</h3>
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="text-[9px] font-black uppercase text-slate-500 ml-1">Purchase Price</label>
+                                <input type="number" id="fc-purch" oninput="saveFixedCosts()" placeholder="0" class="w-full mt-1 p-2 bg-white rounded-lg text-xs font-bold outline-none border border-slate-200">
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-[9px] font-black uppercase text-slate-500 ml-1">Est. Current Value</label>
+                                <input type="number" id="fc-curr" oninput="saveFixedCosts()" placeholder="0" class="w-full mt-1 p-2 bg-white rounded-lg text-xs font-bold outline-none border border-slate-200">
+                            </div>
+                        </div>
+                        <div class="mt-2 text-right">
+                            <span class="text-[9px] font-black uppercase text-slate-400">Calculated Depreciation: </span>
+                            <span id="fc-deprec-val" class="text-xs font-black text-rose-600">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-100 pb-2">Service & Maintenance Log</h2>
+                    
+                    <div class="flex gap-2 mb-4 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <input type="date" id="maint-date" class="w-28 p-2 bg-white rounded-lg text-[10px] font-bold outline-none border border-slate-200">
+                        <input type="text" id="maint-item" placeholder="Service / Tyres" class="flex-1 p-2 bg-white rounded-lg text-xs font-bold outline-none border border-slate-200">
+                        <input type="number" id="maint-cost" placeholder="$ Cost" class="w-20 p-2 bg-white rounded-lg text-xs font-bold outline-none border border-slate-200">
+                        <button onclick="addMaintenance()" class="bg-slate-900 text-white px-3 rounded-lg text-xs font-black hover:bg-slate-800 transition">+</button>
+                    </div>
+
+                    <div class="max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                        <table class="w-full text-left">
+                            <tbody id="maint-list" class="divide-y divide-slate-50">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex-1 flex flex-col gap-6">
+                
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm no-print">
+                    <h2 class="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-4">Log a Trip (ATO Compliant)</h2>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 items-end">
+                        <div class="md:col-span-1">
+                            <label class="text-[9px] font-black text-slate-400 uppercase ml-1">Date</label>
+                            <input type="date" id="tripDate" class="w-full p-2.5 bg-slate-50 rounded-xl text-xs font-bold outline-none mt-1 uppercase">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase ml-1">Purpose</label>
+                            <select id="tripPurpose" class="w-full p-2.5 bg-slate-50 rounded-xl text-xs font-bold outline-none mt-1">
+                                <option value="Client Transport">Client Transport</option>
+                                <option value="Between Sites/Shifts">Between Sites / Shifts</option>
+                                <option value="Admin/Supplies">Admin / Supplies</option>
+                                <option value="Personal (Non-Claimable)">Personal (Non-Claimable)</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="text-[9px] font-black text-slate-400 uppercase ml-1">Odo Start</label>
+                            <input type="number" id="odoStart" placeholder="50120" class="w-full p-2.5 bg-slate-50 rounded-xl text-xs font-mono outline-none mt-1" oninput="calculateTrip()">
+                        </div>
+                        <div class="md:col-span-1">
+                            <label class="text-[9px] font-black text-slate-400 uppercase ml-1">Odo End</label>
+                            <input type="number" id="odoEnd" placeholder="50145" class="w-full p-2.5 bg-slate-50 rounded-xl text-xs font-mono outline-none mt-1" oninput="calculateTrip()">
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">
+                            Trip Total: <span id="tripCalc" class="text-sm ml-1">0</span> km
+                        </div>
+                        <button onclick="addTrip()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-black text-xs hover:bg-blue-700 transition shadow-md">Save Log</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex-1 flex flex-col">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h2 class="text-lg font-black uppercase tracking-tight">Official Logbook</h2>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 bg-white px-2 py-1 rounded border border-slate-200">Active: <span id="log-veh-name">Vehicle 1</span></span>
+                    </div>
+                    
+                    <div class="overflow-x-auto flex-1 max-h-[500px] custom-scrollbar">
+                        <table class="w-full text-left min-w-[600px]">
+                            <thead class="text-[9px] font-black uppercase text-slate-400 border-b border-slate-100 bg-white sticky top-0 z-10">
+                                <tr>
+                                    <th class="p-4">Date</th>
+                                    <th class="p-4">Purpose</th>
+                                    <th class="p-4">Odometer</th>
+                                    <th class="p-4">Distance</th>
+                                    <th class="p-4 text-right no-print">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="log-list" class="divide-y divide-slate-50">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Data Structure
+        const emptyVehicle = {
+            name: "",
+            fixed: { regCost: '', regDate: '', insCost: '', insDate: '', purchPrice: '', currValue: '' },
+            maint: [], // {id, date, item, cost}
+            logs: []   // {id, date, purpose, start, end, dist}
+        };
+
+        let db = { v1: JSON.parse(JSON.stringify(emptyVehicle)), v2: JSON.parse(JSON.stringify(emptyVehicle)) };
+        let activeV = 'v1';
+
+        // Init
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('bizFleetManager'));
+            if(saved) {
+                // Migration support
+                if(!saved.v1) db = { v1: saved, v2: JSON.parse(JSON.stringify(emptyVehicle)) };
+                else db = saved;
+            }
+            
+            // Set today's date for inputs
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('tripDate').value = today;
+            document.getElementById('maint-date').value = today;
+
+            switchVehicle('v1');
+        };
+
+        function silentSave() {
+            localStorage.setItem('bizFleetManager', JSON.stringify(db));
+            calculateDashboard(); // update totals on save
+        }
+
+        function switchVehicle(vKey) {
+            activeV = vKey;
+            
+            // UI Toggle
+            document.getElementById('tab-v1').classList.toggle('active', vKey === 'v1');
+            document.getElementById('tab-v2').classList.toggle('active', vKey === 'v2');
+            
+            const vData = db[activeV];
+            
+            // Load Fixed Costs
+            document.getElementById('veh-name').value = vData.name;
+            document.getElementById('fc-rego').value = vData.fixed.regCost;
+            document.getElementById('fc-rego-date').value = vData.fixed.regDate;
+            document.getElementById('fc-ins').value = vData.fixed.insCost;
+            document.getElementById('fc-ins-date').value = vData.fixed.insDate;
+            document.getElementById('fc-purch').value = vData.fixed.purchPrice;
+            document.getElementById('fc-curr').value = vData.fixed.currValue;
+            
+            // Prep Logbook
+            document.getElementById('log-veh-name').innerText = vData.name || (vKey === 'v1' ? 'Vehicle 1' : 'Vehicle 2');
+            if(vData.logs.length > 0) {
+                const latest = vData.logs.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
+                document.getElementById('odoStart').value = latest.end;
+            } else {
+                document.getElementById('odoStart').value = '';
+            }
+            document.getElementById('odoEnd').value = '';
+            document.getElementById('tripCalc').innerText = '0';
+
+            renderMaint();
+            renderLogs();
+            calculateDashboard();
+        }
+
+        // --- FIXED COSTS & DASHBOARD ---
+        function saveFixedCosts() {
+            const f = db[activeV].fixed;
+            db[activeV].name = document.getElementById('veh-name').value;
+            f.regCost = parseFloat(document.getElementById('fc-rego').value) || '';
+            f.regDate = document.getElementById('fc-rego-date').value;
+            f.insCost = parseFloat(document.getElementById('fc-ins').value) || '';
+            f.insDate = document.getElementById('fc-ins-date').value;
+            f.purchPrice = parseFloat(document.getElementById('fc-purch').value) || '';
+            f.currValue = parseFloat(document.getElementById('fc-curr').value) || '';
+            
+            document.getElementById('log-veh-name').innerText = db[activeV].name || (activeV === 'v1' ? 'Vehicle 1' : 'Vehicle 2');
+            
+            silentSave();
+        }
+
+        function calculateDashboard() {
+            const v = db[activeV];
+            const f = v.fixed;
+            
+            // 1. Depreciation
+            const deprec = (f.purchPrice && f.currValue) ? Math.max(0, f.purchPrice - f.currValue) : 0;
+            document.getElementById('fc-deprec-val').innerText = `$${deprec.toLocaleString()}`;
+
+            // 2. Maintenance Total
+            const maintTotal = v.maint.reduce((sum, item) => sum + (parseFloat(item.cost) || 0), 0);
+
+            // 3. True Running Cost (Rego + Ins + Maint + Deprec)
+            const totalCost = (parseFloat(f.regCost) || 0) + (parseFloat(f.insCost) || 0) + maintTotal + deprec;
+            document.getElementById('dash-total-cost').innerText = totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            // 4. Mileage & Cost Per KM
+            let totalKm = 0;
+            let claimKm = 0;
+            v.logs.forEach(l => {
+                totalKm += l.dist;
+                if(l.purpose !== 'Personal (Non-Claimable)') claimKm += l.dist;
+            });
+            
+            document.getElementById('dash-claim-km').innerText = claimKm.toLocaleString();
+            
+            const cpk = totalKm > 0 ? (totalCost / totalKm) : 0;
+            document.getElementById('dash-cpk').innerText = cpk.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            // 5. Next Renewal logic
+            const today = new Date(); today.setHours(0,0,0,0);
+            const renewals = [];
+            if(f.regDate) renewals.push({ name: 'Rego', date: new Date(f.regDate) });
+            if(f.insDate) renewals.push({ name: 'Insurance', date: new Date(f.insDate) });
+            
+            let dueMsg = "All Good";
+            let msgColor = "text-blue-800";
+            
+            if(renewals.length > 0) {
+                // Find the closest future/past date
+                renewals.sort((a,b) => a.date - b.date);
+                const next = renewals[0];
+                
+                if(next.date < today) {
+                    dueMsg = `OVERDUE: ${next.name}`;
+                    msgColor = "text-red-600";
+                } else {
+                    const diffTime = Math.abs(next.date - today);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if(diffDays <= 30) {
+                        dueMsg = `${next.name} in ${diffDays} days`;
+                        msgColor = "text-amber-600";
+                    } else {
+                        dueMsg = `${next.name} (${next.date.toLocaleDateString('en-AU', {month:'short', year:'numeric'})})`;
+                    }
+                }
+            }
+            const dueEl = document.getElementById('dash-next-due');
+            dueEl.innerText = dueMsg;
+            dueEl.className = `text-sm font-black leading-tight ${msgColor}`;
+        }
+
+        // --- MAINTENANCE LOGIC ---
+        function addMaintenance() {
+            const date = document.getElementById('maint-date').value;
+            const item = document.getElementById('maint-item').value;
+            const cost = parseFloat(document.getElementById('maint-cost').value);
+
+            if(!date || !item || isNaN(cost)) return alert("Requires Date, Item, and Cost.");
+
+            db[activeV].maint.push({ id: Date.now(), date, item, cost });
+            document.getElementById('maint-item').value = '';
+            document.getElementById('maint-cost').value = '';
+            
+            silentSave();
+            renderMaint();
+        }
+
+        function renderMaint() {
+            const list = db[activeV].maint;
+            list.sort((a,b) => new Date(b.date) - new Date(a.date)); // Descending
+            
+            const today = new Date(); today.setHours(0,0,0,0);
+
+            document.getElementById('maint-list').innerHTML = list.map(m => {
+                const isProjected = new Date(m.date) > today;
+                return `
+                <tr class="group hover:bg-slate-50 transition border-b border-slate-50 last:border-0">
+                    <td class="py-3 pr-2 w-20">
+                        <span class="text-[9px] font-bold text-slate-500 block leading-tight">${new Date(m.date).toLocaleDateString('en-AU', {day:'numeric', month:'short'})}</span>
+                        <span class="text-[8px] font-black uppercase ${isProjected ? 'text-amber-500' : 'text-green-600'}">${isProjected ? 'Proj' : 'Paid'}</span>
+                    </td>
+                    <td class="pr-2"><span class="text-xs font-bold text-slate-800">${m.item}</span></td>
+                    <td class="pr-2 w-16 text-right"><span class="text-xs font-black text-rose-600">$${m.cost}</span></td>
+                    <td class="text-right w-8">
+                        <button onclick="removeMaint(${m.id})" class="text-slate-300 hover:text-red-500 transition font-black">✕</button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+        function removeMaint(id) { db[activeV].maint = db[activeV].maint.filter(x => x.id !== id); silentSave(); renderMaint(); }
+
+        // --- MILEAGE LOGIC ---
+        function calculateTrip() {
+            const start = parseFloat(document.getElementById('odoStart').value) || 0;
+            const end = parseFloat(document.getElementById('odoEnd').value) || 0;
+            const total = end > start ? end - start : 0;
+            document.getElementById('tripCalc').innerText = total;
+            return total;
+        }
+
+        function addTrip() {
+            const date = document.getElementById('tripDate').value;
+            const purpose = document.getElementById('tripPurpose').value;
+            const start = parseFloat(document.getElementById('odoStart').value);
+            const end = parseFloat(document.getElementById('odoEnd').value);
+            const dist = calculateTrip();
+
+            if(!date || isNaN(start) || isNaN(end) || end <= start) {
+                return alert("Ensure Odometer End is greater than Start, and a date is selected.");
+            }
+
+            db[activeV].logs.push({ id: Date.now(), date, purpose, start, end, dist });
+            
+            document.getElementById('odoStart').value = end;
+            document.getElementById('odoEnd').value = '';
+            document.getElementById('tripCalc').innerText = '0';
+
+            silentSave();
+            renderLogs();
+        }
+
+        function renderLogs() {
+            const list = db[activeV].logs;
+            list.sort((a,b) => new Date(b.date) - new Date(a.date)); // Descending
+
+            document.getElementById('log-list').innerHTML = list.map(log => {
+                const isPersonal = log.purpose === 'Personal (Non-Claimable)';
+                return `
+                <tr class="hover:bg-slate-50 transition group border-b border-slate-50 last:border-0 ${isPersonal ? 'opacity-50' : ''}">
+                    <td class="p-4 text-xs font-bold">${new Date(log.date).toLocaleDateString('en-AU')}</td>
+                    <td class="p-4 text-[10px] font-black uppercase tracking-wider ${isPersonal ? 'text-slate-400' : 'text-blue-600'}">${log.purpose}</td>
+                    <td class="p-4 text-xs font-mono text-slate-500">${log.start} → ${log.end}</td>
+                    <td class="p-4 text-sm font-black ${isPersonal ? 'text-slate-400' : 'text-slate-800'}">${log.dist} km</td>
+                    <td class="p-4 text-right no-print">
+                        <button onclick="removeTrip(${log.id})" class="text-slate-300 hover:text-red-500 font-black transition">✕</button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+        function removeTrip(id) { db[activeV].logs = db[activeV].logs.filter(x => x.id !== id); silentSave(); renderLogs(); }
+
+        // --- EXPORT & RESET ---
+        function exportCSV() {
+            const vName = db[activeV].name || activeV.toUpperCase();
+            let csv = `Vehicle Export: ${vName}\n\n`;
+            
+            // 1. Costs Summary
+            csv += `FIXED COSTS & SUMMARY\n`;
+            csv += `Item,Value\n`;
+            csv += `Rego Cost,${db[activeV].fixed.regCost}\n`;
+            csv += `Rego Due,${db[activeV].fixed.regDate}\n`;
+            csv += `Insurance Cost,${db[activeV].fixed.insCost}\n`;
+            csv += `Insurance Due,${db[activeV].fixed.insDate}\n`;
+            csv += `Purchase Price,${db[activeV].fixed.purchPrice}\n`;
+            csv += `Est Current Value,${db[activeV].fixed.currValue}\n\n`;
+
+            // 2. Maintenance
+            csv += `MAINTENANCE LOG\n`;
+            csv += `Date,Item,Cost\n`;
+            db[activeV].maint.forEach(m => { csv += `${m.date},"${m.item}",${m.cost}\n`; });
+            csv += `\n`;
+
+            // 3. Trips
+            csv += `ATO MILEAGE LOG\n`;
+            csv += `Date,Purpose,Odometer Start,Odometer End,Distance (km)\n`;
+            db[activeV].logs.forEach(l => { csv += `${l.date},"${l.purpose}",${l.start},${l.end},${l.dist}\n`; });
+
+            const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csv);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${vName}_Fleet_Export_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function resetData() {
+            if(confirm("Permanently wipe all vehicle, maintenance, and mileage data? Ensure you export first!")) {
+                localStorage.removeItem('bizFleetManager');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

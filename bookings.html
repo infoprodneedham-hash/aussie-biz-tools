@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Booking Manager | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .active-tab { border-bottom: 3px solid #2563eb; color: #2563eb; }
+        
+        /* Status Colors */
+        .status-pill { font-size: 9px; font-weight: 900; text-transform: uppercase; padding: 4px 10px; border-radius: 9999px; cursor: pointer; border: 1px solid transparent; width: 100%; text-align: center; }
+        .s-proposed { background: #f1f5f9; color: #64748b; border-color: #cbd5e1; }
+        .s-active { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .s-completed { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+        .s-closed { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+
+        /* Calendar Styling */
+        .cal-day { min-height: 120px; border: 1px solid #f1f5f9; padding: 6px; position: relative; background: white; }
+        .job-tag { font-size: 8px; font-weight: 800; padding: 2px 4px; border-radius: 4px; margin-top: 3px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .today-marker { border: 2px solid #2563eb !important; }
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+
+    <header class="bg-white border-b sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-black text-blue-600 tracking-tighter uppercase">BIZTOOLHUB</a>
+            <div class="flex gap-3">
+                <button onclick="saveData()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-lg">Save All Data</button>
+                <button onclick="resetData()" class="text-slate-400 text-xs font-bold hover:text-red-500">Reset</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        
+        <nav class="flex gap-8 border-b border-slate-200 mb-8 overflow-x-auto no-print">
+            <button onclick="switchTab('queue')" class="tab-btn active-tab pb-4 text-sm font-black uppercase tracking-widest" id="btn-queue">Booking Queue</button>
+            <button onclick="switchTab('calendar')" class="tab-btn pb-4 text-sm font-black uppercase tracking-widest text-slate-400" id="btn-calendar">Visual Schedule</button>
+        </nav>
+
+        <div id="queue" class="tab-content active">
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm overflow-x-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black uppercase tracking-tight">Active Bookings</h2>
+                    <button onclick="addJob()" class="bg-slate-900 text-white px-6 py-3 rounded-2xl text-xs font-bold transition hover:bg-slate-800">+ New Booking</button>
+                </div>
+                <table class="w-full text-left min-w-[1000px]">
+                    <thead class="text-[10px] font-black uppercase text-slate-400 border-b border-slate-100">
+                        <tr>
+                            <th class="pb-4 w-1/4">Client Name / Phone</th>
+                            <th class="pb-4">Job Description</th>
+                            <th class="pb-4">Date / Time</th>
+                            <th class="pb-4 w-32">Status</th>
+                            <th class="pb-4">Notes</th>
+                            <th class="pb-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="job-list" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="calendar" class="tab-content">
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 id="calMonthLabel" class="text-xl font-black uppercase tracking-tighter">Month Year</h2>
+                    <div class="flex gap-2">
+                        <button onclick="changeMonth(-1)" class="p-2 border rounded-xl hover:bg-slate-50">←</button>
+                        <button onclick="changeMonth(1)" class="p-2 border rounded-xl hover:bg-slate-50">→</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-7 gap-px bg-slate-100 rounded-2xl overflow-hidden border border-slate-100" id="calendar-grid">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let jobs = [];
+        let curDate = new Date();
+        const states = ['proposed', 'active', 'completed', 'closed'];
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab', 'text-blue-600'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-'+id).classList.add('active-tab', 'text-blue-600');
+            if(id === 'calendar') renderCalendar();
+        }
+
+        // --- JOB LOGIC ---
+        function addJob() {
+            jobs.push({ id: Date.now(), client: '', phone: '', desc: '', date: '', time: '', status: 'proposed', notes: '' });
+            renderJobs();
+        }
+
+        function renderJobs() {
+            document.getElementById('job-list').innerHTML = jobs.map(j => `
+                <tr class="group">
+                    <td class="py-6">
+                        <input type="text" value="${j.client}" oninput="updateJob(${j.id}, 'client', this.value)" placeholder="Client Name" class="font-bold border-none text-sm w-full bg-transparent outline-none mb-1">
+                        <input type="text" value="${j.phone}" oninput="updateJob(${j.id}, 'phone', this.value)" placeholder="Phone" class="text-[10px] text-slate-400 border-none w-full bg-transparent outline-none">
+                    </td>
+                    <td><input type="text" value="${j.desc}" oninput="updateJob(${j.id}, 'desc', this.value)" placeholder="Job Details" class="text-sm border-none w-full bg-transparent outline-none"></td>
+                    <td>
+                        <input type="date" value="${j.date}" onchange="updateJob(${j.id}, 'date', this.value)" class="text-xs bg-slate-50 p-2 rounded-lg border-none outline-none block mb-1">
+                        <input type="time" value="${j.time}" onchange="updateJob(${j.id}, 'time', this.value)" class="text-[10px] bg-slate-50 p-1 rounded-lg border-none outline-none">
+                    </td>
+                    <td><button onclick="cycleStatus(${j.id})" class="status-pill s-${j.status}">${j.status}</button></td>
+                    <td><textarea oninput="updateJob(${j.id}, 'notes', this.value)" class="text-[10px] bg-transparent border-none w-full h-8 outline-none" placeholder="Notes...">${j.notes}</textarea></td>
+                    <td class="text-right"><button onclick="removeJob(${j.id})" class="text-slate-300 hover:text-red-500 transition">✕</button></td>
+                </tr>`).join('');
+        }
+
+        function updateJob(id, f, v) { 
+            jobs.find(x => x.id === id)[f] = v; 
+            if (f === 'date') renderCalendar(); // Sync to calendar if date changes
+        }
+
+        function cycleStatus(id) {
+            let j = jobs.find(x => x.id === id);
+            j.status = states[(states.indexOf(j.status) + 1) % states.length];
+            renderJobs();
+            renderCalendar();
+        }
+
+        function removeJob(id) { jobs = jobs.filter(x => x.id !== id); renderJobs(); renderCalendar(); }
+
+        // --- CALENDAR LOGIC ---
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+                grid.innerHTML += `<div class="bg-slate-50 p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">${d}</div>`;
+            });
+
+            const m = curDate.getMonth();
+            const y = curDate.getFullYear();
+            document.getElementById('calMonthLabel').innerText = new Intl.DateTimeFormat('en-AU', { month: 'long', year: 'numeric' }).format(curDate);
+
+            const firstDay = new Date(y, m, 1).getDay();
+            const lastDay = new Date(y, m + 1, 0).getDate();
+            const today = new Date();
+
+            for(let i=0; i < firstDay; i++) grid.innerHTML += `<div class="bg-white/50"></div>`;
+
+            for(let d=1; d <= lastDay; d++) {
+                const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                const dayJobs = jobs.filter(j => j.date === ds);
+                const isToday = today.getDate() === d && today.getMonth() === m && today.getFullYear() === y;
+
+                const jobHtml = dayJobs.map(j => `
+                    <span class="job-tag s-${j.status}">${j.time ? j.time + ' ' : ''}${j.client || 'Job'}</span>
+                `).join('');
+
+                grid.innerHTML += `
+                    <div class="cal-day ${isToday ? 'today-marker' : ''}">
+                        <span class="text-[10px] font-bold ${isToday ? 'text-blue-600' : 'text-slate-400'}">${d}</span>
+                        ${jobHtml}
+                    </div>
+                `;
+            }
+        }
+
+        function changeMonth(v) { curDate.setMonth(curDate.getMonth() + v); renderCalendar(); }
+
+        // --- PERSISTENCE ---
+        function saveData() {
+            localStorage.setItem('bizJobBookings', JSON.stringify(jobs));
+            alert('All Booking Data Saved!');
+        }
+
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('bizJobBookings'));
+            if(saved) { jobs = saved; renderJobs(); }
+            renderCalendar();
+        };
+
+        function resetData() { if(confirm("Permanently wipe all bookings?")) { localStorage.removeItem('bizJobBookings'); location.reload(); } }
+    </script>
+</body>
+</html>

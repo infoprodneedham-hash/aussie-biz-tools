@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Logistics | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .pill-gp { background: #eff6ff; color: #2563eb; }
+        .pill-specialist { background: #f3e8ff; color: #7e22ce; }
+        .pill-allied { background: #f0fdf4; color: #15803d; }
+        .pill-dental { background: #fffbeb; color: #b45309; }
+        
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+
+    <header class="bg-white border-b sticky top-0 z-50 no-print">
+        <div class="max-w-[1600px] mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-black text-blue-600 uppercase tracking-tighter">BIZTOOLHUB</a>
+            <div class="flex gap-3">
+                <button onclick="saveAll()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-lg">Save Health Data</button>
+                <button onclick="resetData()" class="text-slate-400 text-xs font-bold hover:text-red-500">Reset</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto px-6 py-8 flex flex-col lg:flex-row gap-8">
+        
+        <div class="flex-1 space-y-6">
+            <div class="flex justify-between items-end mb-2">
+                <div>
+                    <h1 class="text-2xl font-black uppercase tracking-tight">Health Logistics</h1>
+                    <p class="text-sm text-slate-500 font-medium">Manage appointments, medication administration, and  topics.</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Upcoming Appointments</h2>
+                    <button onclick="addAppt()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-800 transition shadow-sm">+ Add Appt</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left min-w-[600px]">
+                        <thead class="text-[10px] font-black uppercase text-slate-400 border-b border-slate-100">
+                            <tr>
+                                <th class="pb-3 w-1/3">Doctor / Clinic</th>
+                                <th class="pb-3">Type</th>
+                                <th class="pb-3">Date & Time</th>
+                                <th class="pb-3 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appt-list" class="divide-y divide-slate-50">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-blue-600 p-8 rounded-3xl shadow-lg text-white">
+                <div class="flex justify-between items-center mb-4 border-b border-blue-500 pb-4">
+                    <div>
+                        <h2 class="text-[10px] font-black uppercase tracking-widest text-blue-200"> Discussion List</h2>
+                        <p class="text-xs text-blue-100 font-medium mt-1">Log medical issues or questions to raise at your next appointment.</p>
+                    </div>
+                    <span class="text-2xl">🩺</span>
+                </div>
+                
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="newIssue" placeholder="e.g. Discuss lingering cough, ask for physio referral..." class="flex-1 bg-blue-700/50 border border-blue-500 p-3 rounded-xl text-sm text-white placeholder-blue-300 outline-none focus:border-blue-300 transition">
+                    <button onclick="addIssue()" class="bg-white text-blue-700 px-4 py-2 rounded-xl text-xs font-black hover:bg-blue-50 transition shadow-md">Add</button>
+                </div>
+                
+                <ul id="issue-list" class="space-y-2 max-h-[250px] overflow-y-auto custom-scrollbar pr-2">
+                    </ul>
+            </div>
+        </div>
+
+        <aside class="lg:w-[450px] flex-shrink-0 space-y-6">
+            
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Medications & Scripts</h2>
+                    <button onclick="addMed()" class="text-blue-600 text-xs font-black hover:text-blue-800 transition">+ Add Med</button>
+                </div>
+
+                <div id="med-list" class="space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar pr-2">
+                    </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-200 pb-2">Health Admin & Renewals</h3>
+                <div id="admin-list" class="space-y-3">
+                    </div>
+            </div>
+
+        </aside>
+    </main>
+
+    <script>
+        let appts = [];
+        let meds = [];
+        let issues = [];
+        let adminTasks = [
+            { id: 1, name: "Medicare Details Update", date: "" },
+            { id: 2, name: "Specialist Referral Renewal", date: "" },
+            { id: 3, name: "Annual Dental Checkup", date: "" },
+            { id: 4, name: "Vaccination / Booster", date: "" }
+        ];
+        
+        const typeStyles = {
+            'GP / General / Other Health Professional': 'pill-gp',
+            'Specialist': 'pill-specialist',
+            'Physio/Allied': 'pill-allied',
+            'Dental/Optom': 'pill-dental'
+        };
+
+        // --- INIT ---
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('bizHealthHubV2'));
+            if(saved) {
+                appts = saved.appts || [];
+                meds = saved.meds || [];
+                issues = saved.issues || [];
+                // Merge saved dates into default tasks
+                if(saved.adminTasks) {
+                    saved.adminTasks.forEach(savedTask => {
+                        const t = adminTasks.find(x => x.id === savedTask.id);
+                        if(t) t.date = savedTask.date;
+                    });
+                }
+            }
+            renderAppts();
+            renderMeds();
+            renderIssues();
+            renderAdmin();
+        };
+
+        function silentSave() {
+            localStorage.setItem('bizHealthHubV2', JSON.stringify({ appts, meds, issues, adminTasks }));
+        }
+        function saveAll() {
+            silentSave();
+            alert("Health logistics saved securely to your browser.");
+        }
+
+        // --- APPOINTMENTS LOGIC ---
+        function addAppt() {
+            appts.push({ id: Date.now(), doctor: '', type: 'GP / General', date: '', time: '' });
+            renderAppts();
+            silentSave();
+        }
+
+        function renderAppts() {
+            appts.sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            document.getElementById('appt-list').innerHTML = appts.map(a => `
+                <tr class="group hover:bg-slate-50 transition border-b border-slate-50 last:border-0">
+                    <td class="py-4 pr-4">
+                        <input type="text" value="${a.doctor}" oninput="updateAppt(${a.id}, 'doctor', this.value)" placeholder="Dr. Name / Clinic" class="font-bold border-none text-sm w-full bg-transparent outline-none">
+                    </td>
+                    <td class="pr-4">
+                        <select onchange="updateAppt(${a.id}, 'type', this.value)" class="text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md border-none outline-none ${typeStyles[a.type]} w-full cursor-pointer">
+                            ${Object.keys(typeStyles).map(t => `<option value="${t}" ${a.type===t?'selected':''}>${t}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="pr-4">
+                        <div class="flex gap-2">
+                            <input type="date" value="${a.date}" onchange="updateAppt(${a.id}, 'date', this.value)" class="text-[10px] bg-slate-50 p-2 rounded-lg border border-slate-100 outline-none w-full text-slate-600 font-bold cursor-pointer">
+                            <input type="time" value="${a.time}" onchange="updateAppt(${a.id}, 'time', this.value)" class="text-[10px] bg-slate-50 p-2 rounded-lg border border-slate-100 outline-none w-full text-slate-600 font-bold cursor-pointer">
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <button onclick="removeAppt(${a.id})" class="text-slate-300 hover:text-red-500 transition font-black">✕</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            if(appts.length === 0) {
+                document.getElementById('appt-list').innerHTML = `<tr><td colspan="4" class="py-6 text-center text-xs text-slate-400 font-bold">No upcoming appointments booked.</td></tr>`;
+            }
+        }
+
+        function updateAppt(id, f, v) { appts.find(x => x.id === id)[f] = v; silentSave(); }
+        function removeAppt(id) { appts = appts.filter(x => x.id !== id); renderAppts(); silentSave(); }
+
+        // --- GP ISSUES LOGIC ---
+        function addIssue() {
+            const input = document.getElementById('newIssue');
+            if(input.value.trim() === '') return;
+            issues.push({ id: Date.now(), text: input.value.trim() });
+            input.value = '';
+            renderIssues();
+            silentSave();
+        }
+
+        function renderIssues() {
+            document.getElementById('issue-list').innerHTML = issues.map(iss => `
+                <li class="flex justify-between items-start gap-3 bg-blue-700/30 p-3 rounded-xl border border-blue-500/50 group">
+                    <span class="text-xs font-bold leading-snug">${iss.text}</span>
+                    <button onclick="removeIssue(${iss.id})" class="text-blue-300 hover:text-white font-black opacity-0 group-hover:opacity-100 transition mt-0.5">✕</button>
+                </li>
+            `).join('');
+            
+            if(issues.length === 0) {
+                document.getElementById('issue-list').innerHTML = `<li class="text-xs text-blue-300 italic p-2 text-center">No issues logged.</li>`;
+            }
+        }
+        function removeIssue(id) { issues = issues.filter(x => x.id !== id); renderIssues(); silentSave(); }
+
+        // --- MEDICATIONS LOGIC ---
+        function addMed() {
+            meds.push({ id: Date.now(), name: '', freq: 'Daily', method: 'Oral', admin: 'Independent', scriptsLeft: 1 });
+            renderMeds();
+            silentSave();
+        }
+
+        function renderMeds() {
+            const freqs = ['Daily', 'Twice Daily', 'Weekly', 'As Needed', 'Specific'];
+            const methods = ['Oral', 'Topical', 'Injection', 'Inhaled', 'Drops', 'Other'];
+            const admins = ['Independent', 'Requires Assistance'];
+
+            document.getElementById('med-list').innerHTML = meds.map(m => `
+                <div class="p-4 bg-slate-50 rounded-2xl border ${m.scriptsLeft <= 0 ? 'border-red-300 bg-red-50' : 'border-slate-100'} relative group">
+                    <button onclick="removeMed(${m.id})" class="absolute top-3 right-3 text-slate-300 hover:text-red-500 font-black opacity-0 group-hover:opacity-100 transition">✕</button>
+                    
+                    <input type="text" value="${m.name}" oninput="updateMed(${m.id}, 'name', this.value)" placeholder="Medication / Drug Name" class="font-black border-none text-sm w-full bg-transparent outline-none mb-3 text-slate-800 pr-6">
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div>
+                            <span class="text-[8px] font-black uppercase text-slate-400 block mb-0.5 ml-1">Frequency</span>
+                            <select onchange="updateMed(${m.id}, 'freq', this.value)" class="w-full text-[10px] font-bold text-slate-600 bg-white border border-slate-200 p-1.5 rounded-lg outline-none cursor-pointer">
+                                ${freqs.map(f => `<option value="${f}" ${m.freq===f?'selected':''}>${f}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div>
+                            <span class="text-[8px] font-black uppercase text-slate-400 block mb-0.5 ml-1">Method</span>
+                            <select onchange="updateMed(${m.id}, 'method', this.value)" class="w-full text-[10px] font-bold text-slate-600 bg-white border border-slate-200 p-1.5 rounded-lg outline-none cursor-pointer">
+                                ${methods.map(f => `<option value="${f}" ${m.method===f?'selected':''}>${f}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <span class="text-[8px] font-black uppercase text-slate-400 block mb-0.5 ml-1">Administration</span>
+                            <select onchange="updateMed(${m.id}, 'admin', this.value)" class="w-full text-[10px] font-bold ${m.admin==='Requires Assistance'?'text-amber-700 bg-amber-50':'text-teal-700 bg-teal-50'} border border-slate-200 p-1.5 rounded-lg outline-none cursor-pointer">
+                                ${admins.map(f => `<option value="${f}" ${m.admin===f?'selected':''}>${f}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between border-t border-slate-200 pt-3 mt-1">
+                        <span class="text-[9px] font-black uppercase tracking-widest ${m.scriptsLeft <= 0 ? 'text-red-600' : 'text-slate-400'}">Scripts/Refills Left:</span>
+                        <div class="flex items-center bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
+                            <button onclick="changeScripts(${m.id}, -1)" class="px-3 py-1 text-slate-400 hover:bg-slate-100 font-black transition">-</button>
+                            <span class="px-3 py-1 text-xs font-black ${m.scriptsLeft <= 0 ? 'text-red-600' : 'text-slate-800'} w-6 text-center">${m.scriptsLeft}</span>
+                            <button onclick="changeScripts(${m.id}, 1)" class="px-3 py-1 text-slate-400 hover:bg-slate-100 font-black transition border-l border-slate-100">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            if(meds.length === 0) {
+                document.getElementById('med-list').innerHTML = `<p class="text-center text-xs text-slate-400 font-bold py-4">No medications tracked.</p>`;
+            }
+        }
+
+        function updateMed(id, f, v) { meds.find(x => x.id === id)[f] = v; silentSave(); if(f==='admin') renderMeds(); }
+        function removeMed(id) { meds = meds.filter(x => x.id !== id); renderMeds(); silentSave(); }
+        function changeScripts(id, val) {
+            const m = meds.find(x => x.id === id);
+            m.scriptsLeft = Math.max(0, m.scriptsLeft + val);
+            renderMeds();
+            silentSave();
+        }
+
+        // --- LONG TERM ADMIN TRACKER ---
+        function updateAdminDate(id, dateVal) {
+            adminTasks.find(x => x.id === id).date = dateVal;
+            silentSave();
+            renderAdmin();
+        }
+
+        function renderAdmin() {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const thirtyDays = new Date(today);
+            thirtyDays.setDate(thirtyDays.getDate() + 30);
+
+            document.getElementById('admin-list').innerHTML = adminTasks.map(task => {
+                let statusHtml = `<span class="text-[8px] font-black uppercase text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200">No Date Set</span>`;
+                let borderClass = "border-slate-100";
+
+                if (task.date) {
+                    const dueDate = new Date(task.date);
+                    dueDate.setHours(0,0,0,0);
+
+                    if (dueDate < today) {
+                        statusHtml = `<span class="text-[8px] font-black uppercase text-red-700 bg-red-100 px-2 py-0.5 rounded border border-red-200 shadow-sm">Overdue</span>`;
+                        borderClass = "border-red-200 bg-red-50/50";
+                    } else if (dueDate <= thirtyDays) {
+                        statusHtml = `<span class="text-[8px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded border border-amber-200 shadow-sm">Due Soon</span>`;
+                        borderClass = "border-amber-200 bg-amber-50/50";
+                    } else {
+                        statusHtml = `<span class="text-[8px] font-black uppercase text-green-700 bg-green-100 px-2 py-0.5 rounded border border-green-200 shadow-sm">Good</span>`;
+                    }
+                }
+
+                return `
+                <div class="flex flex-col gap-2 p-3 bg-white rounded-xl border ${borderClass} transition">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-bold text-slate-700 leading-tight">${task.name}</span>
+                        ${statusHtml}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] font-black uppercase text-slate-400">Next Due:</span>
+                        <input type="date" value="${task.date}" onchange="updateAdminDate(${task.id}, this.value)" class="text-[10px] bg-slate-50 p-1.5 rounded-md border border-slate-200 outline-none text-slate-600 font-bold flex-1 cursor-pointer">
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function resetData() {
+            if(confirm("Permanently wipe all health data?")) {
+                localStorage.removeItem('bizHealthHubV2');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

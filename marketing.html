@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Ops Hub | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .active-tab { border-bottom: 3px solid #2563eb; color: #2563eb; }
+        
+        /* Event Lifecycle Labels */
+        .status-pill { font-size: 9px; font-weight: 900; text-transform: uppercase; padding: 4px 10px; border-radius: 9999px; cursor: pointer; border: 1px solid transparent; width: 100%; text-align: center; }
+        .s-proposed { background: #f1f5f9; color: #64748b; border-color: #cbd5e1; }
+        .s-active { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+        .s-inactive { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+        .s-closed { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+
+        .cal-day { min-height: 120px; border: 1px solid #f1f5f9; padding: 6px; position: relative; }
+        .event-tag { font-size: 8px; font-weight: 800; padding: 2px 4px; border-radius: 4px; margin-top: 3px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        @media print { .no-print { display: none !important; } }
+        
+        select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.4rem center; background-size: 0.8em; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+
+    <header class="bg-white border-b sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-black text-blue-600 tracking-tighter uppercase">BIZTOOLHUB</a>
+            <div class="flex gap-3">
+                <button onclick="saveAll()" class="bg-blue-600 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-lg">Save Data</button>
+                <button onclick="resetAll()" class="text-slate-400 text-xs font-bold hover:text-red-500">Reset</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1536px] mx-auto px-6 py-8">
+        
+        <nav class="flex gap-8 border-b border-slate-200 mb-8 overflow-x-auto no-print">
+            <button onclick="switchTab('events')" class="tab-btn active-tab pb-4 text-sm font-black uppercase tracking-widest" id="btn-events">01. Events Chart</button>
+            <button onclick="switchTab('pipeline')" class="tab-btn pb-4 text-sm font-black uppercase tracking-widest text-slate-400" id="btn-pipeline">02. Sales Pipeline</button>
+            <button onclick="switchTab('calendar')" class="tab-btn pb-4 text-sm font-black uppercase tracking-widest text-slate-400" id="btn-calendar">03. Master Calendar</button>
+        </nav>
+
+        <div id="events" class="tab-content active">
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm overflow-x-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black uppercase tracking-tight">Campaign Strategy Ledger</h2>
+                    <button onclick="addEvent()" class="bg-slate-900 text-white px-6 py-3 rounded-2xl text-xs font-bold transition hover:bg-slate-800">+ Add Campaign</button>
+                </div>
+                <table class="w-full text-left min-w-[1200px]">
+                    <thead class="text-[10px] font-black uppercase text-slate-400 border-b border-slate-100">
+                        <tr>
+                            <th class="pb-4">Campaign Name / Type</th>
+                            <th class="pb-4 w-32">Status</th>
+                            <th class="pb-4">Duration</th>
+                            <th class="pb-4">Date Range (Start/End)</th>
+                            <th class="pb-4">Total ($)</th>
+                            <th class="pb-4">Periodic ($ / Period)</th>
+                            <th class="pb-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="event-list" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="pipeline" class="tab-content">
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm overflow-x-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-2xl font-black uppercase tracking-tight">Lead Conversion</h2>
+                    <button onclick="addLead()" class="bg-green-600 text-white px-6 py-3 rounded-2xl text-xs font-bold">+ Add New Lead</button>
+                </div>
+                <table class="w-full text-left min-w-[1100px]">
+                    <thead class="text-[10px] font-black uppercase text-slate-400 border-b border-slate-100">
+                        <tr>
+                            <th class="pb-4">Lead Name / Date</th>
+                            <th class="pb-4">Contact Info</th>
+                            <th class="pb-4">Sales Status</th>
+                            <th class="pb-4">Quote Sent</th>
+                            <th class="pb-4 text-orange-600">7-Day Follow-up</th>
+                            <th class="pb-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lead-list" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="calendar" class="tab-content">
+            <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 id="calMonth" class="text-xl font-black uppercase">Month Year</h2>
+                    <div class="flex gap-2">
+                        <button onclick="changeMonth(-1)" class="p-2 border rounded-xl hover:bg-slate-50">←</button>
+                        <button onclick="changeMonth(1)" class="p-2 border rounded-xl hover:bg-slate-50">→</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-7 gap-px bg-slate-100 rounded-2xl overflow-hidden border border-slate-100" id="calendar-grid"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let events = [];
+        let leads = [];
+        let curDate = new Date();
+        
+        const lifecycleStates = ['proposed', 'active', 'inactive', 'closed'];
+        const durationOptions = ['1 Week', '2 Weeks', '1 Month', '3 Months', '6 Months', 'Ongoing'];
+        const eventTypes = ['FB Campaign', 'Letterbox Leaflet Drop', 'Google Ads', 'Email Blast', 'Print Media', 'Other'];
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab', 'text-blue-600'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-'+id).classList.add('active-tab', 'text-blue-600');
+            if(id === 'calendar') renderCalendar();
+        }
+
+        // --- MARKETING EVENTS LOGIC ---
+        function addEvent() {
+            events.push({ id: Date.now(), name: '', type: 'FB Campaign', status: 'proposed', duration: '1 Week', start: '', end: '', total: 0, periodic: 0, periodType: 'Weekly' });
+            renderEvents();
+        }
+
+        function renderEvents() {
+            document.getElementById('event-list').innerHTML = events.map(e => `
+                <tr class="group">
+                    <td class="py-4">
+                        <input type="text" value="${e.name}" oninput="updateEvent(${e.id}, 'name', this.value)" placeholder="Campaign Title" class="font-bold border-none text-sm w-full bg-transparent outline-none block">
+                        <select onchange="updateEvent(${e.id}, 'type', this.value)" class="text-[10px] font-black text-slate-400 uppercase bg-transparent border-none outline-none mt-1">
+                            ${eventTypes.map(t => `<option value="${t}" ${e.type===t?'selected':''}>${t}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td><button onclick="cycleStatus(${e.id})" class="status-pill s-${e.status}">${e.status}</button></td>
+                    <td>
+                        <select onchange="updateEvent(${e.id}, 'duration', this.value)" class="text-xs bg-slate-50 p-2 rounded-lg border-none outline-none w-full">
+                            ${durationOptions.map(d => `<option value="${d}" ${e.duration===d?'selected':''}>${d}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <div class="flex flex-col gap-1">
+                            <input type="date" value="${e.start}" onchange="updateEvent(${e.id}, 'start', this.value)" class="text-[10px] bg-slate-50 p-1 rounded border-none">
+                            <input type="date" value="${e.end}" onchange="updateEvent(${e.id}, 'end', this.value)" class="text-[10px] bg-slate-50 p-1 rounded border-none">
+                        </div>
+                    </td>
+                    <td><input type="number" value="${e.total}" oninput="updateEvent(${e.id}, 'total', this.value)" class="w-20 bg-transparent border-none text-sm font-mono outline-none"></td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <input type="number" value="${e.periodic}" oninput="updateEvent(${e.id}, 'periodic', this.value)" class="w-16 bg-transparent border-none text-sm font-mono outline-none">
+                            <select onchange="updateEvent(${e.id}, 'periodType', this.value)" class="text-[10px] bg-slate-100 p-1 rounded border-none outline-none">
+                                <option ${e.periodType==='Weekly'?'selected':''}>Weekly</option>
+                                <option ${e.periodType==='Monthly'?'selected':''}>Monthly</option>
+                            </select>
+                        </div>
+                    </td>
+                    <td class="text-right"><button onclick="removeEvent(${e.id})" class="text-slate-300 hover:text-red-500 transition">✕</button></td>
+                </tr>`).join('');
+        }
+        
+        function updateEvent(id, f, v) { events.find(x => x.id === id)[f] = v; }
+        function cycleStatus(id) { 
+            let e = events.find(x => x.id === id); 
+            e.status = lifecycleStates[(lifecycleStates.indexOf(e.status) + 1) % lifecycleStates.length]; 
+            renderEvents(); 
+        }
+        function removeEvent(id) { events = events.filter(x => x.id !== id); renderEvents(); }
+
+        // --- PIPELINE LOGIC ---
+        function addLead() {
+            leads.push({ id: Date.now(), name: '', phone: '', email: '', date: new Date().toISOString().split('T')[0], status: 'Attempted', quoteDate: '' });
+            renderLeads();
+        }
+        function renderLeads() {
+            document.getElementById('lead-list').innerHTML = leads.map(l => {
+                let followUp = '--';
+                if(l.quoteDate) {
+                    let d = new Date(l.quoteDate); d.setDate(d.getDate() + 7);
+                    followUp = d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+                }
+                const vStatus = l.status.toLowerCase();
+                return `
+                <tr class="${l.status === 'Sale' ? 'bg-green-50/50' : ''}">
+                    <td class="py-4">
+                        <input type="text" value="${l.name}" oninput="updateLead(${l.id}, 'name', this.value)" placeholder="Name" class="font-bold border-none text-sm w-full bg-transparent mb-1 outline-none">
+                        <input type="date" value="${l.date}" onchange="updateLead(${l.id}, 'date', this.value)" class="text-[9px] text-slate-400 bg-transparent border-none p-0 outline-none">
+                    </td>
+                    <td>
+                        <input type="text" value="${l.phone}" oninput="updateLead(${l.id}, 'phone', this.value)" placeholder="Phone" class="text-xs border-none w-full bg-transparent p-0 mb-1 outline-none">
+                        <input type="text" value="${l.email}" oninput="updateLead(${l.id}, 'email', this.value)" placeholder="Email" class="text-xs border-none w-full bg-transparent p-0 outline-none">
+                    </td>
+                    <td>
+                        <select onchange="updateLead(${l.id}, 'status', this.value)" class="text-[10px] font-black uppercase p-2 rounded-lg border-none outline-none ${vStatus==='sale'?'bg-green-100 text-green-700':'bg-slate-50 text-slate-500'}">
+                            <option value="Attempted" ${l.status==='Attempted'?'selected':''}>Attempted</option>
+                            <option value="Received" ${l.status==='Received'?'selected':''}>Received</option>
+                            <option value="Quoted" ${l.status==='Quoted'?'selected':''}>Quoted</option>
+                            <option value="Sale" ${l.status==='Sale'?'selected':''}>Sale</option>
+                            <option value="Lost" ${l.status==='Lost'?'selected':''}>Lost</option>
+                        </select>
+                    </td>
+                    <td><input type="date" value="${l.quoteDate}" onchange="updateLead(${l.id}, 'quoteDate', this.value)" class="text-xs bg-slate-50 p-2 rounded-lg border-none outline-none"></td>
+                    <td class="text-xs font-black ${l.status === 'Sale' ? 'text-slate-300' : 'text-orange-600'}">${l.status === 'Sale' ? 'WON' : followUp}</td>
+                    <td class="text-right"><button onclick="removeLead(${l.id})" class="text-slate-300 hover:text-red-500 transition">✕</button></td>
+                </tr>`;
+            }).join('');
+        }
+        function updateLead(id, f, v) { leads.find(x => x.id === id)[f] = v; renderLeads(); }
+        function removeLead(id) { leads = leads.filter(x => x.id !== id); renderLeads(); }
+
+        // --- CALENDAR LOGIC ---
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid'); grid.innerHTML = '';
+            ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => grid.innerHTML += `<div class="bg-slate-50 p-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">${d}</div>`);
+            
+            const m = curDate.getMonth(); const y = curDate.getFullYear();
+            document.getElementById('calMonth').innerText = new Intl.DateTimeFormat('en-AU', { month: 'long', year: 'numeric' }).format(curDate);
+            const first = new Date(y, m, 1).getDay(); const last = new Date(y, m + 1, 0).getDate();
+            
+            for(let i=0; i<first; i++) grid.innerHTML += `<div class="bg-white"></div>`;
+            
+            for(let d=1; d<=last; d++) {
+                const dayDate = new Date(y, m, d);
+                dayDate.setHours(0,0,0,0);
+                
+                const dayEvents = events.filter(e => {
+                    if(!e.start) return false;
+                    const start = new Date(e.start); start.setHours(0,0,0,0);
+                    const end = e.end ? new Date(e.end) : start; end.setHours(0,0,0,0);
+                    return dayDate >= start && dayDate <= end;
+                });
+
+                const eventHtml = dayEvents.map(e => `<span class="event-tag s-${e.status}">${e.status}: ${e.name || e.type}</span>`).join('');
+                grid.innerHTML += `<div class="cal-day bg-white text-[10px] font-bold text-slate-400">${d}${eventHtml}</div>`;
+            }
+        }
+        function changeMonth(v) { curDate.setMonth(curDate.getMonth() + v); renderCalendar(); }
+
+        // --- PERSISTENCE ---
+        function saveAll() { localStorage.setItem('bizMarketingData', JSON.stringify({ events, leads })); alert('Strategy Data Saved Locally!'); }
+        function resetAll() { if(confirm("Wipe all data?")) { localStorage.removeItem('bizMarketingData'); location.reload(); } }
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('bizMarketingData'));
+            if(saved) { events = saved.events || []; leads = saved.leads || []; }
+            renderEvents(); renderLeads(); renderCalendar();
+        };
+    </script>
+</body>
+</html>

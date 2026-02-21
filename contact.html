@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans leading-normal antialiased flex flex-col min-h-screen">
+
+    <header class="bg-white border-b sticky top-0 z-50 no-print">
+        <div class="max-w-[1600px] mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-black text-blue-600 tracking-tighter uppercase">BIZTOOLHUB</a>
+            
+            <nav class="hidden md:flex space-x-8 text-sm font-bold text-slate-600">
+                <a href="index.html" class="hover:text-blue-600 transition">All Tools</a>
+                <a href="about.html" class="hover:text-blue-600 transition">Mission</a>
+                <a href="contact.html" class="text-blue-600">Contact</a>
+            </nav>
+            
+            <button onclick="toggleMenu()" class="md:hidden text-slate-600 font-bold text-xs uppercase px-3 py-2 border border-slate-200 rounded-lg hover:bg-slate-50 transition focus:outline-none focus:ring-2 focus:ring-blue-100">
+                Menu
+            </button>
+        </div>
+
+        <div id="mobile-nav" class="hidden md:hidden bg-white border-t border-slate-100 absolute w-full shadow-2xl z-40">
+            <div class="px-6 py-6 flex flex-col space-y-6 text-sm font-black text-slate-500 uppercase tracking-widest">
+                <a href="index.html" class="hover:text-blue-600 transition block">All Tools</a>
+                <a href="about.html" class="hover:text-blue-600 transition block">Mission</a>
+                <a href="contact.html" class="text-blue-600 block">Contact</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-3xl mx-auto px-6 py-16 w-full">
+        
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-black uppercase tracking-tight mb-4">Get in Touch</h1>
+            <p class="text-slate-500 font-medium">Have a question, feature request, or found a bug? Drop a message below and it will be sent directly to the inbox.</p>
+        </div>
+
+        <div class="bg-white p-8 md:p-12 rounded-3xl border border-slate-200 shadow-sm">
+            
+            <form action="https://formspree.io/f/xjgeavwa" method="POST" class="space-y-6">
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1 block mb-2">Your Name</label>
+                        <input type="text" name="name" required placeholder="Your Name" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-sm font-bold outline-none focus:border-blue-400 focus:bg-white transition text-slate-800">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1 block mb-2">Your Email</label>
+                        <input type="email" name="email" required placeholder="email@example.com" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-sm font-bold outline-none focus:border-blue-400 focus:bg-white transition text-slate-800">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1 block mb-2">Subject</label>
+                    <select name="subject" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-sm font-bold outline-none focus:border-blue-400 focus:bg-white transition text-slate-700 cursor-pointer">
+                        <option value="General Inquiry">General Inquiry</option>
+                        <option value="Feature Request">Feature Request</option>
+                        <option value="Bug Report">Bug Report</option>
+                        <option value="Feedback">Feedback</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1 block mb-2">Message</label>
+                    <textarea name="message" required placeholder="How can we help?" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-sm font-medium outline-none focus:border-blue-400 focus:bg-white transition text-slate-800 h-40 resize-none"></textarea>
+                </div>
+
+                <input type="hidden" name="_next" value="https://yourwebsite.com/contact.html?success=true">
+                
+                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition shadow-lg mt-4">
+                    Send Message
+                </button>
+            </form>
+
+        </div>
+    </main>
+
+    <footer class="bg-white border-t py-12 mt-auto">
+        <div class="max-w-[1600px] mx-auto px-6 grid md:grid-cols-2 gap-8 items-center">
+            <div>
+                <p class="font-black text-slate-800 uppercase tracking-widest text-sm mb-2">BizToolHub Australia</p>
+                <p class="text-xs text-slate-400 font-medium leading-relaxed">Created for Aussie students and small business owners. All tools are locally processed in your browser—we never see your personal data.</p>
+            </div>
+            <div class="flex flex-wrap md:justify-end gap-8 text-xs font-black text-slate-500 uppercase tracking-widest">
+                <a href="about.html" class="hover:text-blue-600 transition">Mission</a>
+                <a href="privacy.html" class="hover:text-blue-600 transition">Privacy</a>
+                <a href="terms.html" class="hover:text-blue-600 transition">Terms</a>
+                <a href="contact.html" class="text-blue-600 transition">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        function toggleMenu() {
+            const nav = document.getElementById('mobile-nav');
+            nav.classList.toggle('hidden');
+        }
+
+        // Simple Success Message Handler
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('success') === 'true') {
+                alert("Thanks for reaching out! Your message has been sent successfully.");
+            }
+        }
+    </script>
+</body>
+</html>

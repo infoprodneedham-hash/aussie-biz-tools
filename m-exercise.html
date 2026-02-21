@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Fitness Roster | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .date-btn.active { background: #4f46e5; color: white; border-color: #4f46e5; }
+        /* Prevent iOS Zoom */
+        input, select, textarea { font-size: 16px !important; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .active-tab { border-bottom: 4px solid #4f46e5; color: #4f46e5; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased pb-20">
+
+    <header class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-14 flex justify-between items-center">
+            <a href="index.html" class="text-xs font-black text-blue-600 uppercase tracking-tighter">BIZTOOLHUB</a>
+            <div class="flex gap-4">
+                <button onclick="recordDailyInput()" class="text-indigo-600 text-[10px] font-black uppercase">Save Log</button>
+                <a href="index.html" class="text-slate-400 text-[10px] font-black uppercase">Exit</a>
+            </div>
+        </div>
+        <div class="flex bg-white border-b">
+            <button onclick="switchTab('log')" id="tab-log" class="flex-1 py-3 text-[10px] font-black uppercase tracking-widest active-tab">Training Log</button>
+            <button onclick="switchTab('stats')" id="tab-stats" class="flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Analysis</button>
+        </div>
+    </header>
+
+    <main class="p-4">
+        
+        <div id="section-log" class="tab-content active space-y-6">
+            
+            <div id="date-scroller" class="flex gap-2 overflow-x-auto custom-scrollbar pb-2 px-1 snap-x">
+                </div>
+
+            <div class="flex p-1 bg-slate-200 rounded-2xl">
+                <button id="mode-actual" onclick="setMode('actual')" class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all bg-white shadow">Actual Performance</button>
+                <button id="mode-forecast" onclick="setMode('goal')" class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all text-slate-500">Planned Roster</button>
+            </div>
+
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h3 id="input-title-exercise" class="text-[10px] font-black uppercase tracking-widest text-indigo-600 border-b pb-2">Activity Details</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[8px] font-black uppercase text-slate-400 mb-1 block">Activity Type</label>
+                        <select id="ex-type" onchange="saveInputs()" class="w-full bg-slate-50 p-3 rounded-xl text-sm font-bold outline-none border border-slate-100">
+                            <option value="Rest Day">Rest Day</option>
+                            <option value="Gym / Weights">Gym / Weights</option>
+                            <option value="Running">Running</option>
+                            <option value="Walking">Walking</option>
+                            <option value="Cycling">Cycling</option>
+                            <option value="Yoga / Mobility">Yoga / Mobility</option>
+                            <option value="Other">Other activity</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[8px] font-black uppercase text-slate-400 mb-1 block">Duration (Minutes)</label>
+                        <div class="flex items-center bg-slate-50 rounded-xl overflow-hidden border border-slate-100">
+                            <button onclick="updateNumber('ex-duration', -5)" class="flex-1 py-3 font-black text-slate-400 text-lg">-</button>
+                            <input type="number" id="ex-duration" oninput="saveInputs()" class="w-20 bg-transparent text-center font-black text-indigo-600 outline-none" value="0">
+                            <button onclick="updateNumber('ex-duration', 5)" class="flex-1 py-3 font-black text-slate-400 text-lg">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-teal-600 border-b pb-2">Recovery & Sleep</h3>
+                
+                <div>
+                    <label class="text-[8px] font-black uppercase text-slate-400 mb-1 block">Sleep (Hours)</label>
+                    <div class="flex items-center bg-slate-50 rounded-xl overflow-hidden border border-slate-100">
+                        <button onclick="updateNumber('sleep-hrs', -0.5)" class="flex-1 py-3 font-black text-slate-400 text-lg">-</button>
+                        <input type="number" step="0.5" id="sleep-hrs" oninput="saveInputs()" class="w-20 bg-transparent text-center font-black text-teal-600 outline-none" value="0">
+                        <button onclick="updateNumber('sleep-hrs', 0.5)" class="flex-1 py-3 font-black text-slate-400 text-lg">+</button>
+                    </div>
+                </div>
+
+                <textarea id="fitnessNotes" oninput="saveInputs()" placeholder="How is the body feeling? Any soreness?" class="w-full p-3 bg-slate-50 rounded-xl text-xs outline-none h-20 resize-none"></textarea>
+            </div>
+
+            <button id="bulk-goal-btn" onclick="applyGoalsForward()" class="hidden w-full bg-indigo-50 text-indigo-600 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest">Repeat this Roster for 7 Days</button>
+        </div>
+
+        <div id="section-stats" class="tab-content space-y-4">
+            <div class="bg-slate-900 p-5 rounded-3xl shadow-lg">
+                <div class="flex p-1 bg-slate-800 rounded-xl mb-4">
+                    <button onclick="setChartType('exercise')" id="chart-exercise-btn" class="flex-1 py-2 text-[8px] font-black uppercase rounded-lg bg-slate-700 text-white">Exercise</button>
+                    <button onclick="setChartType('sleep')" id="chart-sleep-btn" class="flex-1 py-2 text-[8px] font-black uppercase rounded-lg text-slate-400">Sleep</button>
+                </div>
+                <div class="h-64">
+                    <canvas id="trendChart"></canvas>
+                </div>
+                
+            </div>
+            <button onclick="resetData()" class="w-full text-slate-400 text-[10px] font-black uppercase py-4">Reset Fitness Data</button>
+        </div>
+
+    </main>
+
+    <script>
+        let diary = {};
+        let activeDate = "";
+        let inputMode = "actual"; 
+        let currentChartType = "exercise";
+        let chartInstance = null;
+        const todayDate = new Date(); todayDate.setHours(0,0,0,0);
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('section-'+tab).classList.add('active');
+            document.getElementById('tab-log').classList.toggle('active-tab', tab==='log');
+            document.getElementById('tab-stats').classList.toggle('active-tab', tab==='stats');
+            if(tab === 'stats') renderChart();
+        }
+
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('bizFitnessForecast'));
+            if(saved) diary = saved;
+            buildDateScroller();
+            loadDay(todayDate.toISOString().split('T')[0]);
+        };
+
+        function buildDateScroller() {
+            const scroller = document.getElementById('date-scroller');
+            for(let i = -7; i <= 3; i++) {
+                const d = new Date(todayDate); d.setDate(d.getDate() + i);
+                const dStr = d.toISOString().split('T')[0];
+                const btn = document.createElement('button');
+                btn.id = `btn-date-${dStr}`;
+                btn.className = `min-w-[55px] p-3 rounded-2xl border flex flex-col items-center snap-center ${i===0?'border-indigo-600 bg-indigo-50':''}`;
+                btn.onclick = () => loadDay(dStr);
+                btn.innerHTML = `<span class="text-[8px] font-black uppercase text-slate-400">${d.toLocaleDateString('en-AU',{weekday:'short'})}</span><span class="text-sm font-black">${d.getDate()}</span>`;
+                scroller.appendChild(btn);
+            }
+        }
+
+        function setMode(mode) {
+            inputMode = mode;
+            document.getElementById('mode-actual').className = mode === 'actual' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-xl bg-white shadow" : "flex-1 py-2 text-[10px] font-black text-slate-400";
+            document.getElementById('mode-forecast').className = mode === 'goal' ? "flex-1 py-2 text-[10px] font-black uppercase rounded-xl bg-white shadow" : "flex-1 py-2 text-[10px] font-black text-slate-400";
+            document.getElementById('bulk-goal-btn').classList.toggle('hidden', mode === 'actual');
+            refreshInputs();
+        }
+
+        function loadDay(dateStr) {
+            activeDate = dateStr;
+            document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active', 'border-indigo-600', 'bg-indigo-50'));
+            const currentBtn = document.getElementById(`btn-date-${dateStr}`);
+            if(currentBtn) currentBtn.classList.add('active', 'border-indigo-600', 'bg-indigo-50');
+            refreshInputs();
+        }
+
+        function refreshInputs() {
+            if(!diary[activeDate]) diary[activeDate] = { actual: { type: 'Rest Day', duration: 0, sleep: 0, notes: '' }, goal: { type: 'Rest Day', duration: 0, sleep: 8, notes: '' } };
+            const data = diary[activeDate][inputMode];
+            document.getElementById('ex-type').value = data.type;
+            document.getElementById('ex-duration').value = data.duration;
+            document.getElementById('sleep-hrs').value = data.sleep;
+            document.getElementById('fitnessNotes').value = data.notes;
+        }
+
+        function updateNumber(id, amt) {
+            const el = document.getElementById(id);
+            el.value = Math.max(0, parseFloat(el.value || 0) + amt);
+            saveInputs();
+        }
+
+        function saveInputs() {
+            const data = diary[activeDate][inputMode];
+            data.type = document.getElementById('ex-type').value;
+            data.duration = parseInt(document.getElementById('ex-duration').value) || 0;
+            data.sleep = parseFloat(document.getElementById('sleep-hrs').value) || 0;
+            data.notes = document.getElementById('fitnessNotes').value;
+            localStorage.setItem('bizFitnessForecast', JSON.stringify(diary));
+        }
+
+        function recordDailyInput() { saveInputs(); alert('Training Roster Saved!'); }
+
+        function applyGoalsForward() {
+            const g = diary[activeDate].goal;
+            for(let i=1; i<=7; i++) {
+                const d = new Date(todayDate); d.setDate(d.getDate() + i);
+                const ds = d.toISOString().split('T')[0];
+                if(!diary[ds]) diary[ds] = { actual: {type:'Rest Day', duration:0, sleep:0, notes:''}, goal: {} };
+                diary[ds].goal = JSON.parse(JSON.stringify(g));
+            }
+            localStorage.setItem('bizFitnessForecast', JSON.stringify(diary));
+            alert('Roster applied to upcoming week!');
+        }
+
+        function setChartType(type) {
+            currentChartType = type;
+            document.getElementById('chart-exercise-btn').className = type === 'exercise' ? "flex-1 py-2 text-[8px] font-black uppercase rounded-lg bg-slate-700 text-white" : "flex-1 py-2 text-[8px] font-black text-slate-400";
+            document.getElementById('chart-sleep-btn').className = type === 'sleep' ? "flex-1 py-2 text-[8px] font-black uppercase rounded-lg bg-slate-700 text-white" : "flex-1 py-2 text-[8px] font-black text-slate-400";
+            renderChart();
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const labels = []; const actData = []; const goalData = [];
+            for(let i=-5; i<=1; i++){
+                const d = new Date(todayDate); d.setDate(d.getDate()+i);
+                const ds = d.toISOString().split('T')[0];
+                labels.push(d.getDate());
+                const day = diary[ds] || { actual:{duration:0, sleep:0}, goal:{duration:0, sleep:8} };
+                if(currentChartType === 'exercise') {
+                    actData.push(day.actual.duration); goalData.push(day.goal.duration);
+                } else {
+                    actData.push(day.actual.sleep); goalData.push(day.goal.sleep);
+                }
+            }
+            if(chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Actual', data: actData, backgroundColor: '#818cf8', borderRadius: 4 },
+                        { label: 'Plan', data: goalData, type: 'line', borderColor: '#2dd4bf', borderDash: [4,4], fill: false }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function resetData() { if(confirm("Wipe all fitness data?")) { localStorage.removeItem('bizFitnessForecast'); location.reload(); } }
+    </script>
+</body>
+</html>

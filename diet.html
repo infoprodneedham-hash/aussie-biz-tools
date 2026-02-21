@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Forecast & Actuals | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .date-btn { min-width: 60px; scroll-snap-align: center; }
+        .date-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        @media print { .no-print { display: none !important; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+
+    <header class="bg-white border-b sticky top-0 z-50 no-print">
+        <div class="max-w-[1600px] mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-black text-blue-600 uppercase tracking-tighter">BIZTOOLHUB</a>
+            <div class="flex gap-3">
+                <button onclick="resetData()" class="text-slate-400 text-xs font-bold hover:text-red-500">Reset All Data</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto px-6 py-8">
+        
+        <div class="mb-8">
+            <h1 class="text-2xl font-black uppercase tracking-tight">Diet Forecast & Log</h1>
+            <p class="text-sm text-slate-500 font-medium">Set your 7-day macro targets, log your actuals, and track your liquids.</p>
+        </div>
+
+        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm mb-8 no-print">
+            <div class="flex items-center justify-between mb-2 px-2">
+                <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Past 14 Days</span>
+                <span class="text-[10px] font-black uppercase text-blue-600 tracking-widest">Today</span>
+                <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Next 7 Days</span>
+            </div>
+            <div id="date-scroller" class="flex gap-2 overflow-x-auto custom-scrollbar pb-2 px-2 scroll-smooth" style="scroll-snap-type: x mandatory;">
+                </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <div class="flex-1 space-y-6">
+                
+                <div class="flex p-1 bg-slate-200 rounded-2xl w-full max-w-md mx-auto">
+                    <button id="mode-actual" onclick="setMode('actual')" class="flex-1 py-2 text-sm font-black uppercase tracking-widest rounded-xl transition-all bg-white shadow text-slate-800">Actual Log</button>
+                    <button id="mode-forecast" onclick="setMode('goal')" class="flex-1 py-2 text-sm font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700">Forecast / Goal</button>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-2">
+                        <h3 id="input-title-liquids" class="text-[10px] font-black uppercase tracking-widest text-blue-600">Daily Liquids</h3>
+                        <span id="date-indicator" class="text-[10px] font-bold uppercase text-slate-400">Today</span>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-blue-50 p-4 rounded-2xl flex flex-col items-center">
+                            <span class="text-3xl mb-2">💧</span>
+                            <span class="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-3">Water (Glasses)</span>
+                            <div class="flex items-center gap-4 bg-white p-2 rounded-xl shadow-sm border border-blue-100">
+                                <button onclick="updateMetric('water', -1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-slate-600">-</button>
+                                <span id="val-water" class="text-xl font-black w-8 text-center text-blue-600">0</span>
+                                <button onclick="updateMetric('water', 1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-slate-600">+</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50 p-4 rounded-2xl flex flex-col items-center">
+                            <span class="text-3xl mb-2">☕</span>
+                            <span class="text-[10px] font-black uppercase text-amber-800 tracking-widest mb-3">Caffeine (Cups)</span>
+                            <div class="flex items-center gap-4 bg-white p-2 rounded-xl shadow-sm border border-amber-100">
+                                <button onclick="updateMetric('coffee', -1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-slate-600">-</button>
+                                <span id="val-coffee" class="text-xl font-black w-8 text-center text-amber-600">0</span>
+                                <button onclick="updateMetric('coffee', 1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-slate-600">+</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 p-4 rounded-2xl flex flex-col items-center">
+                            <span class="text-3xl mb-2">🍷</span>
+                            <span class="text-[10px] font-black uppercase text-purple-800 tracking-widest mb-3">Alcohol (Std)</span>
+                            <div class="flex items-center gap-4 bg-white p-2 rounded-xl shadow-sm border border-purple-100">
+                                <button onclick="updateMetric('alcohol', -1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-slate-600">-</button>
+                                <span id="val-alcohol" class="text-xl font-black w-8 text-center text-purple-600">0</span>
+                                <button onclick="updateMetric('alcohol', 1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-slate-600">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-2">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Meals & Macros (Approx. Grams)</h3>
+                    </div>
+                    
+                    <div class="space-y-3" id="meal-grid">
+                        </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center bg-slate-50 p-4 rounded-xl">
+                        <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Daily Totals:</span>
+                        <div class="flex gap-4">
+                            <span class="text-xs font-black text-rose-700">🥩 <span id="tot-p">0</span>g</span>
+                            <span class="text-xs font-black text-green-700">🥦 <span id="tot-v">0</span>g</span>
+                            <span class="text-xs font-black text-amber-700">🍞 <span id="tot-c">0</span>g</span>
+                            <span class="text-xs font-black text-purple-700">🍩 <span id="tot-f">0</span>g</span>
+                        </div>
+                    </div>
+
+                    <textarea id="dietNotes" oninput="saveMacros()" placeholder="Optional: General notes on energy, digestion, or anomalies today..." class="w-full mt-6 bg-slate-50 border border-slate-100 p-4 rounded-xl text-xs outline-none resize-none h-16 font-medium"></textarea>
+                    
+                    <button onclick="recordDailyInput()" id="record-btn" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black text-xs hover:bg-slate-800 transition shadow-md mt-6">
+                        ✅ Record Actuals for Today
+                    </button>
+                    
+                    <button onclick="applyGoalsForward()" id="bulk-goal-btn" class="hidden w-full bg-blue-100 text-blue-700 py-3 rounded-xl font-bold text-xs hover:bg-blue-200 transition mt-3">
+                        ⏭️ Copy these targets to the next 7 days
+                    </button>
+                </div>
+            </div>
+
+            <aside class="lg:w-[600px] flex-shrink-0 space-y-6">
+                <div class="bg-slate-900 p-8 rounded-3xl text-white shadow-lg h-full flex flex-col min-h-[550px]">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-blue-400">Trend Analysis</h3>
+                        <span class="text-[10px] font-black uppercase text-slate-500">21-Day View</span>
+                    </div>
+
+                    <div class="flex p-1 bg-slate-800 rounded-xl mb-6 shadow-inner">
+                        <button id="chart-liquids-btn" onclick="setChartType('liquids')" class="flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-slate-700 text-white transition shadow-sm">Liquids Trend</button>
+                        <button id="chart-food-btn" onclick="setChartType('food')" class="flex-1 py-2 text-[10px] font-black uppercase rounded-lg text-slate-400 hover:text-white transition">Food Macros</button>
+                    </div>
+                    
+                    <div class="flex-1 relative">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                    <p class="text-[9px] text-slate-500 mt-6 text-center font-bold uppercase tracking-widest">Solid Bar = Actual Intake | Dashed Line = Forecast Target</p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        let diary = {};
+        let activeDate = "";
+        let inputMode = "actual"; 
+        let currentChartType = "liquids"; // 'liquids' or 'food'
+        let chartInstance = null;
+
+        const todayDate = new Date();
+        todayDate.setHours(0,0,0,0);
+        
+        const mealKeys = [
+            { id: 'm1', label: 'Meal 1', color: 'slate' },
+            { id: 'm2', label: 'Meal 2', color: 'slate' },
+            { id: 'm3', label: 'Meal 3', color: 'slate' },
+            { id: 's1', label: 'Snack 1', color: 'blue' },
+            { id: 's2', label: 'Snack 2', color: 'blue' }
+        ];
+
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('bizDietForecast'));
+            if(saved) diary = saved;
+            
+            buildMealGrid();
+            buildDateScroller();
+            loadDay(todayDate.toISOString().split('T')[0]);
+        };
+
+        function buildMealGrid() {
+            const container = document.getElementById('meal-grid');
+            container.innerHTML = mealKeys.map(meal => `
+                <div class="flex flex-col md:flex-row md:items-center gap-2 bg-${meal.color}-50 p-2 rounded-xl border border-${meal.color}-100">
+                    <span class="text-[9px] font-black uppercase text-${meal.color}-500 tracking-wider w-14 pl-2">${meal.label}</span>
+                    <div class="flex flex-1 gap-2">
+                        <div class="flex items-center bg-white border border-rose-100 rounded-lg overflow-hidden flex-1 shadow-sm">
+                            <span class="bg-rose-50 text-xs py-1.5 px-2 border-r border-rose-100" title="Protein">🥩</span>
+                            <input type="number" id="${meal.id}-p" oninput="saveMacros()" placeholder="0" class="w-full text-xs font-bold text-center text-rose-700 outline-none p-1">
+                        </div>
+                        <div class="flex items-center bg-white border border-green-100 rounded-lg overflow-hidden flex-1 shadow-sm">
+                            <span class="bg-green-50 text-xs py-1.5 px-2 border-r border-green-100" title="Greens/Veg">🥦</span>
+                            <input type="number" id="${meal.id}-v" oninput="saveMacros()" placeholder="0" class="w-full text-xs font-bold text-center text-green-700 outline-none p-1">
+                        </div>
+                        <div class="flex items-center bg-white border border-amber-100 rounded-lg overflow-hidden flex-1 shadow-sm">
+                            <span class="bg-amber-50 text-xs py-1.5 px-2 border-r border-amber-100" title="Carbs">🍞</span>
+                            <input type="number" id="${meal.id}-c" oninput="saveMacros()" placeholder="0" class="w-full text-xs font-bold text-center text-amber-700 outline-none p-1">
+                        </div>
+                        <div class="flex items-center bg-white border border-purple-100 rounded-lg overflow-hidden flex-1 shadow-sm">
+                            <span class="bg-purple-50 text-xs py-1.5 px-2 border-r border-purple-100" title="Fats/Treats">🍩</span>
+                            <input type="number" id="${meal.id}-f" oninput="saveMacros()" placeholder="0" class="w-full text-xs font-bold text-center text-purple-700 outline-none p-1">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function buildDateScroller() {
+            const scroller = document.getElementById('date-scroller');
+            scroller.innerHTML = '';
+            
+            for(let i = -14; i <= 7; i++) {
+                const d = new Date(todayDate);
+                d.setDate(d.getDate() + i);
+                const dateStr = d.toISOString().split('T')[0];
+                const isToday = i === 0;
+                
+                const btn = document.createElement('button');
+                btn.className = `date-btn flex flex-col items-center justify-center p-3 rounded-2xl border ${isToday ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:bg-slate-50'} transition`;
+                btn.id = `btn-date-${dateStr}`;
+                btn.onclick = () => loadDay(dateStr);
+                
+                btn.innerHTML = `
+                    <span class="text-[9px] font-black uppercase tracking-widest ${isToday ? 'text-blue-600' : 'text-slate-400'}">${isToday ? 'Today' : d.toLocaleDateString('en-AU', {weekday:'short'})}</span>
+                    <span class="text-lg font-black mt-1 ${isToday ? 'text-blue-700' : 'text-slate-700'}">${d.getDate()}</span>
+                    <span class="text-[8px] font-bold uppercase text-slate-400">${d.toLocaleDateString('en-AU', {month:'short'})}</span>
+                `;
+                scroller.appendChild(btn);
+            }
+
+            setTimeout(() => {
+                const todayBtn = document.getElementById(`btn-date-${todayDate.toISOString().split('T')[0]}`);
+                if(todayBtn) todayBtn.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            }, 100);
+        }
+
+        function setMode(mode) {
+            inputMode = mode;
+            
+            const btnActual = document.getElementById('mode-actual');
+            const btnGoal = document.getElementById('mode-forecast');
+            const recordBtn = document.getElementById('record-btn');
+            const bulkBtn = document.getElementById('bulk-goal-btn');
+            const titleLiquids = document.getElementById('input-title-liquids');
+            
+            if(mode === 'actual') {
+                btnActual.className = "flex-1 py-2 text-sm font-black uppercase tracking-widest rounded-xl transition-all bg-white shadow text-slate-800";
+                btnGoal.className = "flex-1 py-2 text-sm font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700 bg-transparent";
+                recordBtn.innerHTML = "✅ Record Actuals for Selected Date";
+                recordBtn.className = "w-full bg-slate-900 text-white py-4 rounded-xl font-black text-xs hover:bg-slate-800 transition shadow-md mt-6";
+                titleLiquids.innerText = "Logging Actual Liquids";
+                bulkBtn.classList.add('hidden');
+            } else {
+                btnGoal.className = "flex-1 py-2 text-sm font-black uppercase tracking-widest rounded-xl transition-all bg-white shadow text-slate-800";
+                btnActual.className = "flex-1 py-2 text-sm font-black uppercase tracking-widest rounded-xl transition-all text-slate-500 hover:text-slate-700 bg-transparent";
+                recordBtn.innerHTML = "🎯 Save Forecast for Selected Date";
+                recordBtn.className = "w-full bg-blue-600 text-white py-4 rounded-xl font-black text-xs hover:bg-blue-700 transition shadow-md mt-6";
+                titleLiquids.innerText = "Setting Liquid Targets";
+                bulkBtn.classList.remove('hidden');
+            }
+            refreshInputs();
+        }
+
+        function setChartType(type) {
+            currentChartType = type;
+            
+            const btnLiquids = document.getElementById('chart-liquids-btn');
+            const btnFood = document.getElementById('chart-food-btn');
+            
+            if(type === 'liquids') {
+                btnLiquids.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-slate-700 text-white transition shadow-sm";
+                btnFood.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg text-slate-400 hover:text-white transition";
+            } else {
+                btnFood.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-slate-700 text-white transition shadow-sm";
+                btnLiquids.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg text-slate-400 hover:text-white transition";
+            }
+            renderChart();
+        }
+
+        function getDayData() {
+            if(!diary[activeDate]) {
+                diary[activeDate] = { 
+                    actual: { water: 0, coffee: 0, alcohol: 0, notes: '', meals: {} }, 
+                    goal: { water: 8, coffee: 2, alcohol: 0, notes: '', meals: {} }
+                };
+            }
+            
+            // Migration structure
+            const template = {p:'', v:'', c:'', f:''};
+            ['actual', 'goal'].forEach(type => {
+                if(!diary[activeDate][type].meals || typeof diary[activeDate][type].meals.m1 === 'string') {
+                    diary[activeDate][type].meals = {
+                        m1: {...template}, m2: {...template}, m3: {...template}, s1: {...template}, s2: {...template}
+                    };
+                }
+            });
+            return diary[activeDate];
+        }
+
+        function loadDay(dateStr) {
+            if(activeDate) {
+                const oldBtn = document.getElementById(`btn-date-${activeDate}`);
+                if(oldBtn) oldBtn.classList.remove('active', 'border-blue-600', 'bg-blue-600');
+            }
+            
+            activeDate = dateStr;
+            const newBtn = document.getElementById(`btn-date-${activeDate}`);
+            if(newBtn) newBtn.classList.add('active', 'border-blue-600', 'bg-blue-600');
+
+            const selectedDate = new Date(dateStr);
+            const isToday = selectedDate.getTime() === todayDate.getTime();
+            document.getElementById('date-indicator').innerText = isToday ? 'Today' : selectedDate.toLocaleDateString('en-AU', { weekday: 'long', month: 'short', day: 'numeric' });
+
+            if(selectedDate > todayDate) setMode('goal');
+            else setMode('actual');
+
+            refreshInputs();
+            renderChart();
+        }
+
+        function refreshInputs() {
+            const data = getDayData()[inputMode];
+            
+            document.getElementById('val-water').innerText = data.water;
+            document.getElementById('val-coffee').innerText = data.coffee;
+            document.getElementById('val-alcohol').innerText = data.alcohol;
+            document.getElementById('dietNotes').value = data.notes || '';
+            
+            let tP = 0, tV = 0, tC = 0, tF = 0;
+            mealKeys.forEach(m => {
+                const mealData = data.meals[m.id];
+                document.getElementById(`${m.id}-p`).value = mealData.p;
+                document.getElementById(`${m.id}-v`).value = mealData.v;
+                document.getElementById(`${m.id}-c`).value = mealData.c;
+                document.getElementById(`${m.id}-f`).value = mealData.f;
+                
+                tP += parseInt(mealData.p) || 0;
+                tV += parseInt(mealData.v) || 0;
+                tC += parseInt(mealData.c) || 0;
+                tF += parseInt(mealData.f) || 0;
+            });
+            
+            document.getElementById('tot-p').innerText = tP;
+            document.getElementById('tot-v').innerText = tV;
+            document.getElementById('tot-c').innerText = tC;
+            document.getElementById('tot-f').innerText = tF;
+        }
+
+        function updateMetric(metric, amount) {
+            const data = getDayData()[inputMode];
+            data[metric] = Math.max(0, data[metric] + amount);
+            document.getElementById(`val-${metric}`).innerText = data[metric];
+            silentlySave();
+        }
+
+        function saveMacros() {
+            const data = getDayData()[inputMode];
+            data.notes = document.getElementById('dietNotes').value;
+            
+            mealKeys.forEach(m => {
+                data.meals[m.id].p = document.getElementById(`${m.id}-p`).value;
+                data.meals[m.id].v = document.getElementById(`${m.id}-v`).value;
+                data.meals[m.id].c = document.getElementById(`${m.id}-c`).value;
+                data.meals[m.id].f = document.getElementById(`${m.id}-f`).value;
+            });
+            
+            silentlySave();
+            refreshInputs(); 
+        }
+
+        function silentlySave() {
+            localStorage.setItem('bizDietForecast', JSON.stringify(diary));
+            renderChart();
+        }
+
+        function recordDailyInput() {
+            saveMacros();
+            const btn = document.getElementById('record-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = "✨ Saved Successfully!";
+            btn.classList.add('bg-green-600', 'text-white');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-green-600');
+            }, 2000);
+        }
+
+        function applyGoalsForward() {
+            const currentGoal = getDayData().goal;
+            for(let i = 1; i <= 7; i++) {
+                const futureDate = new Date(todayDate);
+                futureDate.setDate(futureDate.getDate() + i);
+                const dStr = futureDate.toISOString().split('T')[0];
+                
+                if(!diary[dStr]) diary[dStr] = { actual: { water: 0, coffee: 0, alcohol: 0, notes: '', meals: {} }, goal: {} };
+                
+                // Deep copy goals
+                diary[dStr].goal = JSON.parse(JSON.stringify(currentGoal));
+            }
+            silentlySave();
+            alert("Liquid and Macro targets successfully copied to the next 7 days!");
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            const labels = [];
+            
+            // Liquids Data
+            const aWater = [], gWater = [];
+            const aCoffee = [], gCoffee = [];
+            const aAlcohol = [], gAlcohol = [];
+            
+            // Macros Data
+            const aP = [], gP = [];
+            const aV = [], gV = [];
+            const aC = [], gC = [];
+            const aF = [], gF = [];
+
+            for(let i = -7; i <= 7; i++) {
+                const d = new Date(todayDate);
+                d.setDate(d.getDate() + i);
+                const dStr = d.toISOString().split('T')[0];
+                
+                labels.push(i === 0 ? 'Today' : d.toLocaleDateString('en-AU', {weekday:'short'}));
+                const dayObj = diary[dStr] || { actual: {water:0, coffee:0, alcohol:0, meals:{}}, goal: {water:8, coffee:2, alcohol:0, meals:{}} };
+                
+                // --- Parse Liquids ---
+                aWater.push(i > 0 ? null : dayObj.actual.water); gWater.push(dayObj.goal.water);
+                aCoffee.push(i > 0 ? null : dayObj.actual.coffee); gCoffee.push(dayObj.goal.coffee);
+                aAlcohol.push(i > 0 ? null : dayObj.actual.alcohol); gAlcohol.push(dayObj.goal.alcohol);
+
+                // --- Parse Macros ---
+                let dayAP=0, dayAV=0, dayAC=0, dayAF=0;
+                let dayGP=0, dayGV=0, dayGC=0, dayGF=0;
+
+                ['m1','m2','m3','s1','s2'].forEach(m => {
+                    const am = dayObj.actual.meals[m] || {};
+                    const gm = dayObj.goal.meals[m] || {};
+                    dayAP += parseInt(am.p)||0; dayAV += parseInt(am.v)||0; dayAC += parseInt(am.c)||0; dayAF += parseInt(am.f)||0;
+                    dayGP += parseInt(gm.p)||0; dayGV += parseInt(gm.v)||0; dayGC += parseInt(gm.c)||0; dayGF += parseInt(gm.f)||0;
+                });
+
+                aP.push(i > 0 ? null : dayAP); gP.push(dayGP);
+                aV.push(i > 0 ? null : dayAV); gV.push(dayGV);
+                aC.push(i > 0 ? null : dayAC); gC.push(dayGC);
+                aF.push(i > 0 ? null : dayAF); gF.push(dayGF);
+            }
+
+            if(chartInstance) chartInstance.destroy();
+
+            // Determine which datasets to show based on the toggle
+            let datasets = [];
+            if(currentChartType === 'liquids') {
+                datasets = [
+                    { label: 'Target Water', data: gWater, type: 'line', borderColor: '#60a5fa', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3, pointRadius: 0, order: 1 },
+                    { label: 'Actual Water', data: aWater, backgroundColor: 'rgba(37, 99, 235, 0.8)', borderRadius: 4, order: 4 },
+                    { label: 'Target Coffee', data: gCoffee, type: 'line', borderColor: '#fbbf24', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3, pointRadius: 0, order: 2 },
+                    { label: 'Actual Coffee', data: aCoffee, backgroundColor: 'rgba(217, 119, 6, 0.8)', borderRadius: 4, order: 5 },
+                    { label: 'Target Alcohol', data: gAlcohol, type: 'line', borderColor: '#c084fc', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3, pointRadius: 0, order: 3 },
+                    { label: 'Actual Alcohol', data: aAlcohol, backgroundColor: 'rgba(126, 34, 206, 0.8)', borderRadius: 4, order: 6 }
+                ];
+            } else {
+                datasets = [
+                    { label: 'Target Protein', data: gP, type: 'line', borderColor: '#e11d48', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3, pointRadius: 0, order: 1 },
+                    { label: 'Actual Protein', data: aP, backgroundColor: 'rgba(225, 29, 72, 0.8)', borderRadius: 4, order: 5 },
+                    { label: 'Target Veg', data: gV, type: 'line', borderColor: '#16a34a', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3, pointRadius: 0, order: 2 },
+                    { label: 'Actual Veg', data: aV, backgroundColor: 'rgba(22, 163, 74, 0.8)', borderRadius: 4, order: 6 },
+                    { label: 'Target Carbs', data: gC, type: 'line', borderColor: '#d97706', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3, pointRadius: 0, order: 3 },
+                    { label: 'Actual Carbs', data: aC, backgroundColor: 'rgba(217, 119, 6, 0.8)', borderRadius: 4, order: 7 },
+                    { label: 'Target Fats', data: gF, type: 'line', borderColor: '#9333ea', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3, pointRadius: 0, order: 4 },
+                    { label: 'Actual Fats', data: aF, backgroundColor: 'rgba(147, 51, 234, 0.8)', borderRadius: 4, order: 8 }
+                ];
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: labels, datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: true, position: 'bottom', labels: { color: '#94a3b8', font: { size: 9, family: 'sans-serif', weight: 'bold' } } }, 
+                        tooltip: { mode: 'index', intersect: false } 
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8', font: {family: 'sans-serif', weight: 'bold'} } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8', font: {family: 'sans-serif', weight: 'bold', size: 9} } }
+                    },
+                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
+                }
+            });
+        }
+
+        function resetData() {
+            if(confirm("Wipe all diet records and forecasts?")) {
+                localStorage.removeItem('bizDietForecast');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

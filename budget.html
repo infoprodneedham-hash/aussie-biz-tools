@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Manager | BizToolHub Australia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .row-paid { opacity: 0.4; filter: grayscale(1); transition: all 0.3s; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans leading-normal">
+
+    <header class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-black text-blue-600 tracking-tighter">BIZTOOLHUB</a>
+            <nav class="hidden md:flex space-x-8 text-sm font-bold text-slate-600">
+                <a href="index.html" class="hover:text-blue-600 transition">All Tools</a>
+                <a href="about.html" class="hover:text-blue-600 transition">Mission</a>
+                <a href="contact.html" class="hover:text-blue-600 transition">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-blue-600 text-white p-6 rounded-3xl shadow-lg">
+                <p class="text-[10px] uppercase font-black opacity-70 tracking-widest">28-Day Income</p>
+                <h2 class="text-3xl font-black" id="sum-income">$0.00</h2>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest">28-Day Expenses</p>
+                <h2 class="text-3xl font-black text-red-500" id="sum-expenses">$0.00</h2>
+            </div>
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest">Net Position</p>
+                <h2 class="text-3xl font-black text-green-600" id="sum-net">$0.00</h2>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <div class="lg:w-1/4 space-y-4">
+                <section class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-4">Income (5)</h3>
+                    <div id="income-container" class="space-y-3"></div>
+                </section>
+                
+                <div class="space-y-3">
+                    <button onclick="saveData()" class="w-full bg-green-600 text-white py-3 rounded-2xl font-black hover:bg-green-700 transition flex items-center justify-center gap-2">
+                        <span>💾</span> Save to Browser
+                    </button>
+                    <button onclick="exportCSV()" class="w-full bg-blue-600 text-white py-3 rounded-2xl font-black hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                        <span>📊</span> Export to CSV
+                    </button>
+                    <button onclick="resetData()" class="w-full bg-white text-red-600 border border-red-100 py-3 rounded-2xl font-black hover:bg-red-50 transition">
+                        Reset All
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:w-3/4">
+                <section class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-6">Expense Timeline (30)</h3>
+                    
+                    <div class="hidden md:grid grid-cols-12 gap-2 mb-2 px-2 text-[10px] font-black uppercase text-slate-400">
+                        <div class="col-span-3">Description</div>
+                        <div class="col-span-2">Amount</div>
+                        <div class="col-span-2">Frequency</div>
+                        <div class="col-span-2">Due Date</div>
+                        <div class="col-span-2">Status</div>
+                        <div class="col-span-1 text-center">Paid</div>
+                    </div>
+
+                    <div id="expense-container" class="space-y-2 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar"></div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const incomeContainer = document.getElementById('income-container');
+        const expenseContainer = document.getElementById('expense-container');
+
+        // Create 5 Income Inputs
+        for (let i = 1; i <= 5; i++) {
+            incomeContainer.innerHTML += `
+                <input type="number" id="inc-${i}" placeholder="Income ${i} $" class="income-val w-full p-2 bg-slate-50 border-none rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-400" oninput="calcBudget()">`;
+        }
+
+        // Create 30 Expense Rows
+        for (let i = 1; i <= 30; i++) {
+            expenseContainer.innerHTML += `
+                <div class="expense-row grid grid-cols-1 md:grid-cols-12 gap-2 items-center bg-slate-50 p-2 rounded-xl border border-transparent">
+                    <div class="col-span-3"><input type="text" id="exp-name-${i}" placeholder="Expense ${i}" class="w-full p-2 bg-white rounded-lg text-xs outline-none"></div>
+                    <div class="col-span-2"><input type="number" id="exp-val-${i}" placeholder="$" class="val-input w-full p-2 bg-white rounded-lg text-xs outline-none focus:ring-2 focus:ring-red-400" oninput="calcBudget()"></div>
+                    <div class="col-span-2">
+                        <select id="exp-freq-${i}" class="freq-input w-full p-2 bg-white rounded-lg text-[10px] font-bold uppercase outline-none" onchange="calcBudget()">
+                            <option value="28">28-Day</option><option value="7">Weekly</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2"><input type="date" id="exp-date-${i}" class="date-input w-full p-2 bg-white rounded-lg text-[10px] outline-none" onchange="calcBudget()"></div>
+                    <div class="col-span-2 text-center"><span class="status-badge text-[9px] font-black uppercase px-2 py-1 rounded-full bg-slate-200 text-slate-500">No Date</span></div>
+                    <div class="col-span-1 text-center"><input type="checkbox" id="exp-paid-${i}" class="paid-check w-4 h-4 accent-green-600" onchange="togglePaid(this)"></div>
+                </div>`;
+        }
+
+        function togglePaid(el) {
+            el.closest('.expense-row').classList.toggle('row-paid', el.checked);
+        }
+
+        function calcBudget() {
+            let totalIncome = 0; let totalExpenses = 0;
+            const today = new Date(); today.setHours(0,0,0,0);
+
+            document.querySelectorAll('.income-val').forEach(el => totalIncome += parseFloat(el.value) || 0);
+
+            document.querySelectorAll('.expense-row').forEach(row => {
+                const val = parseFloat(row.querySelector('.val-input').value) || 0;
+                const freq = row.querySelector('.freq-input').value;
+                const dateVal = row.querySelector('.date-input').value;
+                const badge = row.querySelector('.status-badge');
+                
+                totalExpenses += (freq === "7") ? (val * 4) : val;
+
+                if (dateVal) {
+                    const dueDate = new Date(dateVal); dueDate.setHours(0,0,0,0);
+                    const diff = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    if (diff < 0) { badge.innerText = "Overdue"; badge.className = "status-badge text-[9px] font-black uppercase px-2 py-1 rounded-full bg-red-100 text-red-600"; }
+                    else if (diff === 0) { badge.innerText = "Due Today"; badge.className = "status-badge text-[9px] font-black uppercase px-2 py-1 rounded-full bg-orange-100 text-orange-600 animate-pulse"; }
+                    else { badge.innerText = `${diff} Days Left`; badge.className = "status-badge text-[9px] font-black uppercase px-2 py-1 rounded-full bg-blue-100 text-blue-600"; }
+                }
+            });
+
+            document.getElementById('sum-income').innerText = "$" + totalIncome.toFixed(2);
+            document.getElementById('sum-expenses').innerText = "$" + totalExpenses.toFixed(2);
+            document.getElementById('sum-net').innerText = "$" + (totalIncome - totalExpenses).toFixed(2);
+        }
+
+        function saveData() {
+            const data = {};
+            document.querySelectorAll('input, select').forEach(el => {
+                if (el.id) data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+            });
+            localStorage.setItem('bizToolBudget', JSON.stringify(data));
+            alert('Budget saved locally to your browser!');
+        }
+
+        function loadData() {
+            const data = JSON.parse(localStorage.getItem('bizToolBudget'));
+            if (!data) return;
+            Object.keys(data).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        el.checked = data[id];
+                        if (el.checked) el.closest('.expense-row').classList.add('row-paid');
+                    } else { el.value = data[id]; }
+                }
+            });
+            calcBudget();
+        }
+
+        function resetData() {
+            if (confirm("Clear all budget data?")) {
+                localStorage.removeItem('bizToolBudget');
+                location.reload();
+            }
+        }
+
+        function exportCSV() {
+            let csv = "Type,Description,Amount,Frequency,Due Date,Paid\n";
+            // Income
+            document.querySelectorAll('.income-val').forEach((el, i) => {
+                if (el.value) csv += `Income,Income Stream ${i+1},${el.value},28-Day,N/A,N/A\n`;
+            });
+            // Expenses
+            document.querySelectorAll('.expense-row').forEach(row => {
+                const name = row.querySelector('input[type="text"]').value;
+                const val = row.querySelector('.val-input').value;
+                if (val) {
+                    csv += `Expense,${name || 'Unnamed'},${val},${row.querySelector('.freq-input').value},${row.querySelector('.date-input').value || 'N/A'},${row.querySelector('.paid-check').checked}\n`;
+                }
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'MyBudget_BizToolHub.csv');
+            a.click();
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>

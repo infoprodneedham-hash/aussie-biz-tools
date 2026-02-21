@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Budget | BizToolHub Australia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .row-paid { opacity: 0.6; filter: grayscale(0.5); border-left: 4px solid #16a34a !important; background: #f0fdf4 !important; }
+        /* Prevent zoom on focus for iOS */
+        input, select { font-size: 16px !important; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans leading-normal">
+
+    <header class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-lg font-black text-blue-600 tracking-tighter uppercase">BIZTOOLHUB</a>
+            <div class="flex gap-4">
+                 <a href="index.html" class="text-[10px] font-black uppercase text-slate-400">Back</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div class="bg-blue-600 text-white p-5 rounded-3xl shadow-md">
+                <p class="text-[10px] uppercase font-black opacity-70 tracking-widest">28-Day Income</p>
+                <h2 class="text-2xl font-black" id="sum-income">$0.00</h2>
+            </div>
+            <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex justify-between items-center sm:block">
+                <div>
+                    <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest">28-Day Out</p>
+                    <h2 class="text-2xl font-black text-red-500" id="sum-expenses">$0.00</h2>
+                </div>
+                <div class="sm:hidden text-right">
+                    <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest">Net</p>
+                    <h2 class="text-xl font-black text-green-600" id="sum-net-mobile">$0.00</h2>
+                </div>
+            </div>
+            <div class="hidden sm:block bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+                <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest">Net Position</p>
+                <h2 class="text-2xl font-black text-green-600" id="sum-net">$0.00</h2>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-8">
+            <section class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
+                <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest mb-4">Income Streams</h3>
+                <div id="income-container" class="grid grid-cols-1 gap-3"></div>
+            </section>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="saveData()" class="bg-green-600 text-white py-4 rounded-2xl font-black text-xs hover:bg-green-700 transition flex items-center justify-center gap-2">
+                    <span>💾</span> Save
+                </button>
+                <button onclick="exportCSV()" class="bg-blue-600 text-white py-4 rounded-2xl font-black text-xs hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                    <span>📊</span> Export
+                </button>
+            </div>
+
+            <section>
+                <div class="flex justify-between items-end mb-4">
+                    <h3 class="font-black text-slate-800 uppercase text-xs tracking-widest">Expense Timeline</h3>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">30 Slots Available</span>
+                </div>
+                
+                <div id="expense-container" class="space-y-4 pb-20">
+                    </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-full px-4 max-w-md">
+        <button onclick="resetData()" class="w-full bg-slate-900 text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl opacity-90">
+            Reset All Data
+        </button>
+    </div>
+
+    <script>
+        const incomeContainer = document.getElementById('income-container');
+        const expenseContainer = document.getElementById('expense-container');
+
+        // Create 5 Income Inputs
+        for (let i = 1; i <= 5; i++) {
+            incomeContainer.innerHTML += `
+                <div class="relative">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-xs font-bold">#${i}</span>
+                    <input type="number" id="inc-${i}" placeholder="Amount $" class="income-val w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-400" oninput="calcBudget()">
+                </div>`;
+        }
+
+        // Create 30 Expense Cards (Optimized for Mobile)
+        for (let i = 1; i <= 30; i++) {
+            expenseContainer.innerHTML += `
+                <div class="expense-row bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3 transition-all">
+                    <div class="flex justify-between items-center gap-3">
+                        <input type="text" id="exp-name-${i}" placeholder="Expense Description ${i}" class="w-full font-bold text-sm text-slate-800 placeholder:text-slate-300 outline-none">
+                        <input type="checkbox" id="exp-paid-${i}" class="paid-check w-6 h-6 rounded-lg accent-green-600" onchange="togglePaid(this)">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">$</span>
+                            <input type="number" id="exp-val-${i}" placeholder="0.00" class="val-input w-full pl-6 pr-2 py-2 bg-slate-50 rounded-lg text-sm font-bold outline-none focus:ring-1 focus:ring-red-400" oninput="calcBudget()">
+                        </div>
+                        <select id="exp-freq-${i}" class="freq-input w-full p-2 bg-slate-50 rounded-lg text-[10px] font-black uppercase outline-none" onchange="calcBudget()">
+                            <option value="28">28-Day Cycle</option>
+                            <option value="7">Weekly (x4)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-50">
+                        <input type="date" id="exp-date-${i}" class="date-input bg-transparent text-[10px] font-bold text-slate-500 outline-none" onchange="calcBudget()">
+                        <span class="status-badge text-[9px] font-black uppercase px-2 py-1 rounded-full bg-slate-100 text-slate-400">Set Date</span>
+                    </div>
+                </div>`;
+        }
+
+        function togglePaid(el) {
+            el.closest('.expense-row').classList.toggle('row-paid', el.checked);
+        }
+
+        function calcBudget() {
+            let totalIncome = 0; let totalExpenses = 0;
+            const today = new Date(); today.setHours(0,0,0,0);
+
+            document.querySelectorAll('.income-val').forEach(el => totalIncome += parseFloat(el.value) || 0);
+
+            document.querySelectorAll('.expense-row').forEach(row => {
+                const val = parseFloat(row.querySelector('.val-input').value) || 0;
+                const freq = row.querySelector('.freq-input').value;
+                const dateVal = row.querySelector('.date-input').value;
+                const badge = row.querySelector('.status-badge');
+                
+                totalExpenses += (freq === "7") ? (val * 4) : val;
+
+                if (dateVal) {
+                    const dueDate = new Date(dateVal); dueDate.setHours(0,0,0,0);
+                    const diff = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                    if (diff < 0) { badge.innerText = "Overdue"; badge.className = "status-badge text-[9px] font-black uppercase px-2 py-1 rounded-full bg-red-100 text-red-600"; }
+                    else if (diff === 0) { badge.innerText = "Due Today"; badge.className = "status-badge text-[9px] font-black uppercase px-2 py-1 rounded-full bg-orange-100 text-orange-600 animate-pulse"; }
+                    else { badge.innerText = `${diff} Days Left`; badge.className = "status-badge text-[9px] font-black uppercase px-2 py-1 rounded-full bg-blue-100 text-blue-600"; }
+                }
+            });
+
+            const net = totalIncome - totalExpenses;
+            const netEl = document.getElementById('sum-net');
+            const netMobEl = document.getElementById('sum-net-mobile');
+
+            document.getElementById('sum-income').innerText = "$" + totalIncome.toLocaleString();
+            document.getElementById('sum-expenses').innerText = "$" + totalExpenses.toLocaleString();
+            
+            if(netEl) netEl.innerText = "$" + net.toLocaleString();
+            if(netMobEl) netMobEl.innerText = "$" + net.toLocaleString();
+        }
+
+        function saveData() {
+            const data = {};
+            document.querySelectorAll('input, select').forEach(el => {
+                if (el.id) data[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+            });
+            localStorage.setItem('bizToolBudget', JSON.stringify(data));
+            alert('Budget saved to your device!');
+        }
+
+        function loadData() {
+            const data = JSON.parse(localStorage.getItem('bizToolBudget'));
+            if (!data) return;
+            Object.keys(data).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        el.checked = data[id];
+                        if (el.checked) el.closest('.expense-row').classList.add('row-paid');
+                    } else { el.value = data[id]; }
+                }
+            });
+            calcBudget();
+        }
+
+        function resetData() {
+            if (confirm("Reset everything?")) {
+                localStorage.removeItem('bizToolBudget');
+                location.reload();
+            }
+        }
+
+        function exportCSV() {
+            let csv = "Type,Description,Amount,Frequency,Due Date,Paid\n";
+            document.querySelectorAll('.income-val').forEach((el, i) => {
+                if (el.value) csv += `Income,Income Stream ${i+1},${el.value},28-Day,N/A,N/A\n`;
+            });
+            document.querySelectorAll('.expense-row').forEach(row => {
+                const name = row.querySelector('input[type="text"]').value;
+                const val = row.querySelector('.val-input').value;
+                if (val) {
+                    csv += `Expense,${name || 'Unnamed'},${val},${row.querySelector('.freq-input').value},${row.querySelector('.date-input').value || 'N/A'},${row.querySelector('.paid-check').checked}\n`;
+                }
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Budget_Mobile_BizToolHub.csv');
+            a.click();
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>

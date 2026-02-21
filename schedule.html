@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time-Blocker | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        /* New Vertical Column Architecture */
+        .schedule-wrapper { display: grid; grid-template-columns: 60px repeat(7, minmax(0, 1fr)); background: #e2e8f0; gap: 1px; border-bottom: 1px solid #e2e8f0; }
+        .time-col { background: #f8fafc; }
+        .time-slot-label { height: 60px; font-size: 10px; font-weight: 800; color: #94a3b8; display: flex; align-items: flex-start; justify-content: center; padding-top: 4px; box-sizing: border-box; }
+        
+        .day-col { background: white; position: relative; height: 1440px; } /* 24 hrs * 60px */
+        .hour-line { height: 60px; border-bottom: 1px solid #f1f5f9; box-sizing: border-box; width: 100%; }
+        
+        /* Event Blocks */
+        .event-block { position: absolute; left: 4px; right: 4px; border-radius: 6px; padding: 6px; font-size: 10px; overflow: hidden; z-index: 10; border-left: 4px solid rgba(0,0,0,0.15); box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s; }
+        .event-block:hover { z-index: 20; transform: scale(1.02); }
+        
+        /* Hover Delete Button */
+        .del-btn { position: absolute; top: 4px; right: 4px; width: 18px; height: 18px; background: rgba(255,255,255,0.8); color: #ef4444; border-radius: 4px; font-weight: 900; font-size: 10px; display: flex; align-items: center; justify-content: center; opacity: 0; cursor: pointer; transition: opacity 0.2s; border: none; }
+        .event-block:hover .del-btn { opacity: 1; }
+        .del-btn:hover { background: #ef4444; color: white; }
+
+        /* Types */
+        .type-physical { background: #dbeafe; color: #1e40af; }
+        .type-remote { background: #f3e8ff; color: #6b21a8; }
+        .type-travel { background: #f1f5f9; color: #475569; }
+        .type-social { background: #dcfce7; color: #166534; }
+        .type-appointment { background: #ffedd5; color: #9a3412; }
+        .type-other { background: #fee2e2; color: #991b1b; }
+
+        /* Headers */
+        .day-header { background: #f8fafc; padding: 12px 4px; text-align: center; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #cbd5e1; }
+        .date-num { font-size: 20px; font-weight: 900; line-height: 1; display: block; margin-top: 2px; }
+        .date-day { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
+        .is-today { background: #eff6ff; }
+        .is-today .date-num { color: #2563eb; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+
+    <header class="bg-white border-b sticky top-0 z-50 no-print">
+        <div class="max-w-[1600px] mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-black text-blue-600 tracking-tighter uppercase">BIZTOOLHUB</a>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center bg-slate-100 rounded-xl p-1">
+                    <button onclick="changeWeek(-7)" class="p-2 hover:bg-white rounded-lg transition font-bold">←</button>
+                    <span id="weekDisplay" class="px-4 text-[11px] font-black uppercase text-slate-600 min-w-[150px] text-center">...</span>
+                    <button onclick="changeWeek(7)" class="p-2 hover:bg-white rounded-lg transition font-bold">→</button>
+                </div>
+                <button onclick="saveSchedule()" class="bg-blue-600 text-white px-6 py-2 rounded-xl text-xs font-black shadow-lg">Save Plan</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto px-6 py-8 flex flex-col lg:flex-row gap-8">
+        
+        <aside class="lg:w-80 space-y-6 no-print flex-shrink-0">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <h3 class="text-[10px] font-black uppercase tracking-widest mb-4 text-blue-600">Add Entry</h3>
+                <div class="space-y-3">
+                    <input type="text" id="evName" placeholder="Event Name" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold outline-none">
+                    <input type="text" id="evLoc" placeholder="Location/Link" class="w-full p-3 bg-slate-50 rounded-xl text-xs outline-none">
+                    <textarea id="evNotes" placeholder="Short Notes..." class="w-full p-3 bg-slate-50 rounded-xl text-xs outline-none h-16 resize-none"></textarea>
+                    
+                    <select id="evType" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-black outline-none">
+                        <option value="physical">Class (Physical)</option>
+                        <option value="remote">Class (Remote)</option>
+                        <option value="travel">Travel Time</option>
+                        <option value="social">Social/Life</option>
+                        <option value="appointment">Appointment</option>
+                        <option value="other">Other / Custom</option>
+                    </select>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="evRepeat" class="p-2 bg-slate-50 rounded-xl text-xs font-black outline-none" onchange="toggleDate(this.value)">
+                            <option value="weekly">Weekly</option>
+                            <option value="daily">Daily</option>
+                            <option value="once">Once Only</option>
+                        </select>
+                        <select id="evDay" class="p-2 bg-slate-50 rounded-xl text-xs outline-none">
+                            <option value="1">Mon</option><option value="2">Tue</option><option value="3">Wed</option>
+                            <option value="4">Thu</option><option value="5">Fri</option><option value="6">Sat</option><option value="0">Sun</option>
+                        </select>
+                    </div>
+                    <input type="date" id="evSpecificDate" class="hidden w-full p-3 bg-blue-50 text-blue-600 rounded-xl text-xs outline-none font-black">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="time" id="evStart" class="p-2 bg-slate-50 rounded-xl text-xs outline-none font-bold" value="09:00">
+                        <input type="time" id="evEnd" class="p-2 bg-slate-50 rounded-xl text-xs outline-none font-bold" value="10:00">
+                    </div>
+                    <button onclick="addEvent()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-black text-xs hover:bg-slate-800 transition shadow-md">+ Create Block</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm max-h-[300px] overflow-y-auto custom-scrollbar">
+                <h3 class="text-[10px] font-black uppercase tracking-widest mb-4">Active Blocks</h3>
+                <div id="sidebarList" class="space-y-2"></div>
+            </div>
+        </aside>
+
+        <div class="flex-1 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col min-w-[700px]">
+            <div class="grid grid-cols-[60px_repeat(7,minmax(0,1fr))] border-b bg-slate-50" id="headerRow">
+                </div>
+            
+            <div class="flex-1 overflow-y-auto custom-scrollbar relative" id="gridWrapper">
+                <div class="schedule-wrapper" id="scheduleGrid">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let events = [];
+        let viewDate = new Date(); 
+        // Force viewDate to the Monday of the current week
+        viewDate.setDate(viewDate.getDate() - (viewDate.getDay() === 0 ? 6 : viewDate.getDay() - 1)); 
+        viewDate.setHours(0,0,0,0);
+
+        function toggleDate(val) {
+            document.getElementById('evSpecificDate').classList.toggle('hidden', val !== 'once');
+            document.getElementById('evDay').classList.toggle('hidden', val === 'once');
+        }
+
+        function initGrid() {
+            const grid = document.getElementById('scheduleGrid');
+            grid.innerHTML = '';
+
+            // 1. Time Column
+            const timeCol = document.createElement('div');
+            timeCol.className = 'time-col border-r border-slate-200';
+            for(let h=0; h<24; h++) {
+                const label = document.createElement('div');
+                label.className = 'time-slot-label';
+                label.innerText = `${h % 12 || 12} ${h >= 12 ? 'PM' : 'AM'}`;
+                timeCol.appendChild(label);
+            }
+            grid.appendChild(timeCol);
+
+            // 2. Day Columns (1 to 7)
+            for(let d=1; d<=7; d++) {
+                const dayCol = document.createElement('div');
+                dayCol.className = 'day-col border-r border-slate-100';
+                dayCol.id = `col-${d}`;
+                
+                // Draw hour lines for visual reference
+                for(let h=0; h<24; h++) {
+                    const line = document.createElement('div');
+                    line.className = 'hour-line';
+                    dayCol.appendChild(line);
+                }
+                grid.appendChild(dayCol);
+            }
+        }
+
+        function addEvent() {
+            const ev = {
+                id: Date.now(),
+                name: document.getElementById('evName').value || 'Untitled',
+                loc: document.getElementById('evLoc').value || '',
+                notes: document.getElementById('evNotes').value || '',
+                type: document.getElementById('evType').value,
+                repeat: document.getElementById('evRepeat').value,
+                day: parseInt(document.getElementById('evDay').value),
+                date: document.getElementById('evSpecificDate').value,
+                start: document.getElementById('evStart').value,
+                end: document.getElementById('evEnd').value
+            };
+            
+            if(!ev.start || !ev.end) return alert("Requires start and end times.");
+            
+            events.push(ev);
+            render();
+            saveSchedule();
+            
+            // Clean up inputs
+            document.getElementById('evName').value = '';
+            document.getElementById('evNotes').value = '';
+        }
+
+        function render() {
+            // 1. Render Headers
+            const headerRow = document.getElementById('headerRow');
+            headerRow.innerHTML = '<div class="p-4 border-r border-slate-200 bg-f8fafc"></div>';
+            
+            const startOfWeek = new Date(viewDate);
+            const today = new Date(); today.setHours(0,0,0,0);
+            const weekDates = []; // Store dates for 'once' checking
+
+            for(let i=0; i<7; i++) {
+                const d = new Date(startOfWeek); 
+                d.setDate(d.getDate() + i);
+                weekDates.push(d.getTime());
+                
+                const isToday = d.getTime() === today.getTime();
+                headerRow.innerHTML += `
+                    <div class="day-header ${isToday ? 'is-today' : ''}">
+                        <span class="date-day">${d.toLocaleDateString('en-AU', {weekday:'short'})}</span>
+                        <span class="date-num">${d.getDate()} ${d.toLocaleDateString('en-AU', {month:'short'})}</span>
+                    </div>`;
+            }
+
+            document.getElementById('weekDisplay').innerText = `Week of ${startOfWeek.getDate()} ${startOfWeek.toLocaleDateString('en-AU', {month:'short'})}`;
+
+            // 2. Clear Existing Blocks
+            document.querySelectorAll('.event-block').forEach(b => b.remove());
+            const list = document.getElementById('sidebarList');
+            list.innerHTML = '';
+
+            // 3. Render Blocks
+            events.forEach(ev => {
+                const startMins = (parseInt(ev.start.split(':')[0]) * 60) + parseInt(ev.start.split(':')[1]);
+                const duration = ((parseInt(ev.end.split(':')[0]) * 60) + parseInt(ev.end.split(':')[1])) - startMins;
+                
+                // 1 minute = 1 pixel
+                const top = startMins;
+                const height = duration;
+
+                const draw = (dayIdx) => {
+                    const colId = dayIdx === 0 ? 7 : dayIdx; // JS Sunday is 0. Our grid: Mon=1, Sun=7.
+                    const col = document.getElementById(`col-${colId}`);
+                    
+                    if(!col) return;
+
+                    const block = document.createElement('div');
+                    block.className = `event-block type-${ev.type}`;
+                    block.style.top = `${top}px`;
+                    block.style.height = `${height}px`;
+                    block.title = ev.notes ? `Notes: ${ev.notes}` : '';
+                    
+                    block.innerHTML = `
+                        <button onclick="deleteEvent(${ev.id})" class="del-btn" title="Remove">✕</button>
+                        <div class="font-black leading-tight">${ev.name}</div>
+                        ${ev.loc ? `<div class="opacity-70 text-[9px] mt-1">${ev.loc}</div>` : ''}
+                    `;
+                    col.appendChild(block);
+                };
+
+                // Logic to display on grid
+                if(ev.repeat === 'weekly') {
+                    draw(ev.day);
+                } else if(ev.repeat === 'daily') { 
+                    for(let i=1; i<=7; i++) draw(i); 
+                } else if(ev.repeat === 'once' && ev.date) {
+                    const evDate = new Date(ev.date); evDate.setHours(0,0,0,0);
+                    if(weekDates.includes(evDate.getTime())) {
+                        draw(evDate.getDay());
+                    }
+                }
+
+                // Sidebar rendering
+                list.innerHTML += `
+                    <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 relative group">
+                        <button onclick="deleteEvent(${ev.id})" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 font-black opacity-0 group-hover:opacity-100 transition">✕</button>
+                        <div class="text-[10px] font-bold pr-4">
+                            <p class="truncate text-slate-800">${ev.name}</p>
+                            <p class="text-slate-400 uppercase mb-1">${ev.repeat} @ ${ev.start}</p>
+                            ${ev.notes ? `<p class="text-slate-500 italic font-medium leading-tight border-l-2 border-slate-200 pl-2 mt-1 truncate">${ev.notes}</p>` : ''}
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function deleteEvent(id) { events = events.filter(e => e.id !== id); render(); saveSchedule(); }
+        function changeWeek(days) { viewDate.setDate(viewDate.getDate() + days); render(); }
+        function saveSchedule() { localStorage.setItem('bizStudentSchedule', JSON.stringify(events)); }
+        
+        function loadSchedule() {
+            initGrid();
+            const saved = JSON.parse(localStorage.getItem('bizStudentSchedule'));
+            if(saved) {
+                const oneYear = 365 * 24 * 60 * 60 * 1000;
+                events = saved.filter(e => (Date.now() - e.id) < oneYear);
+            }
+            render();
+            
+            // Auto-scroll to 8 AM
+            setTimeout(() => {
+                document.getElementById('gridWrapper').scrollTop = 8 * 60;
+            }, 100);
+        }
+
+        window.onload = loadSchedule;
+    </script>
+</body>
+</html>

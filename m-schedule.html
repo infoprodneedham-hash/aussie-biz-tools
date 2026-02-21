@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Time-Blocker | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .day-scroller { scroll-snap-type: x mandatory; display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .day-card { scroll-snap-align: start; min-width: 100%; position: relative; }
+        
+        .time-row { height: 60px; border-top: 1px solid #f1f5f9; display: flex; align-items: flex-start; }
+        .time-label { width: 50px; font-size: 9px; font-weight: 800; color: #94a3b8; text-align: right; padding-right: 8px; margin-top: -6px; }
+        
+        .event-block { position: absolute; left: 60px; right: 10px; border-radius: 8px; padding: 6px; font-size: 11px; font-weight: 700; z-index: 10; border-left: 4px solid rgba(0,0,0,0.1); }
+        
+        .type-physical { background: #dbeafe; color: #1e40af; }
+        .type-remote { background: #f3e8ff; color: #6b21a8; }
+        .type-travel { background: #f1f5f9; color: #475569; }
+        .type-social { background: #dcfce7; color: #166534; }
+        .type-appointment { background: #ffedd5; color: #9a3412; }
+        .type-other { background: #fee2e2; color: #991b1b; }
+
+        input, select, textarea { font-size: 16px !important; }
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+
+    <header class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-14 flex justify-between items-center">
+            <a href="index.html" class="text-xs font-black text-blue-600 uppercase tracking-tighter">BIZTOOLHUB</a>
+            <div class="flex gap-4">
+                <button onclick="saveSchedule()" class="text-blue-600 text-[10px] font-black uppercase">Save</button>
+                <a href="index.html" class="text-slate-400 text-[10px] font-black uppercase">Exit</a>
+            </div>
+        </div>
+        <div class="flex items-center justify-between px-4 py-2 bg-slate-50 border-b">
+            <button onclick="changeWeek(-7)" class="p-2 font-bold text-slate-400">←</button>
+            <span id="weekDisplay" class="text-[10px] font-black uppercase text-slate-600">Loading...</span>
+            <button onclick="changeWeek(7)" class="p-2 font-bold text-slate-400">→</button>
+        </div>
+    </header>
+
+    <main>
+        <div class="day-scroller custom-scrollbar" id="dayScroller">
+            </div>
+    </main>
+
+    <button onclick="toggleModal()" class="fixed bottom-6 right-6 w-14 h-14 bg-slate-900 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl z-50">
+        +
+    </button>
+
+    <div id="entryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] hidden p-4 flex items-center justify-center">
+        <div class="bg-white w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-xs font-black uppercase text-blue-600">Create Time Block</h3>
+                <button onclick="toggleModal()" class="text-slate-300">✕</button>
+            </div>
+            
+            <input type="text" id="evName" placeholder="Block Title" class="w-full p-3 bg-slate-50 rounded-xl text-sm font-bold outline-none">
+            
+            <div class="grid grid-cols-2 gap-2">
+                <select id="evType" class="p-3 bg-slate-50 rounded-xl text-xs font-bold outline-none">
+                    <option value="physical">Class (Phys)</option>
+                    <option value="remote">Class (Rem)</option>
+                    <option value="travel">Travel</option>
+                    <option value="social">Social</option>
+                    <option value="appointment">Appointment</option>
+                </select>
+                <select id="evRepeat" class="p-3 bg-slate-50 rounded-xl text-xs font-bold outline-none">
+                    <option value="weekly">Weekly</option>
+                    <option value="daily">Daily</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black uppercase text-slate-400">Start Time</label>
+                    <input type="time" id="evStart" class="w-full p-2 bg-slate-50 rounded-lg text-sm outline-none" value="09:00">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[8px] font-black uppercase text-slate-400">End Time</label>
+                    <input type="time" id="evEnd" class="w-full p-2 bg-slate-50 rounded-lg text-sm outline-none" value="10:00">
+                </div>
+            </div>
+
+            <select id="evDay" class="w-full p-3 bg-slate-50 rounded-xl text-xs font-bold">
+                <option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option>
+                <option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option>
+            </select>
+
+            <button onclick="addEvent()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg">Add to Schedule</button>
+        </div>
+    </div>
+
+    <script>
+        let events = [];
+        let viewDate = new Date();
+        viewDate.setDate(viewDate.getDate() - (viewDate.getDay() === 0 ? 6 : viewDate.getDay() - 1));
+        viewDate.setHours(0,0,0,0);
+
+        function toggleModal() {
+            document.getElementById('entryModal').classList.toggle('hidden');
+        }
+
+        function initDayCards() {
+            const scroller = document.getElementById('dayScroller');
+            scroller.innerHTML = '';
+            
+            for(let i=0; i<7; i++) {
+                const d = new Date(viewDate);
+                d.setDate(d.getDate() + i);
+                
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                card.id = `day-${d.getDay()}`;
+                
+                let dayHtml = `
+                    <div class="p-4 bg-white border-b flex justify-between items-end">
+                        <h2 class="text-xl font-black uppercase text-slate-800">${d.toLocaleDateString('en-AU', {weekday: 'long'})}</h2>
+                        <span class="text-xs font-bold text-blue-600">${d.getDate()} ${d.toLocaleDateString('en-AU', {month: 'short'})}</span>
+                    </div>
+                    <div class="relative h-[1440px] bg-white">
+                `;
+                
+                for(let h=0; h<24; h++) {
+                    dayHtml += `
+                        <div class="time-row">
+                            <div class="time-label">${h % 12 || 12} ${h >= 12 ? 'PM' : 'AM'}</div>
+                        </div>`;
+                }
+                
+                dayHtml += `</div>`;
+                card.innerHTML = dayHtml;
+                scroller.appendChild(card);
+            }
+            renderEvents();
+        }
+
+        function addEvent() {
+            const ev = {
+                id: Date.now(),
+                name: document.getElementById('evName').value || 'New Entry',
+                type: document.getElementById('evType').value,
+                repeat: document.getElementById('evRepeat').value,
+                day: parseInt(document.getElementById('evDay').value),
+                start: document.getElementById('evStart').value,
+                end: document.getElementById('evEnd').value
+            };
+            events.push(ev);
+            toggleModal();
+            renderEvents();
+            saveSchedule();
+        }
+
+        function renderEvents() {
+            document.querySelectorAll('.event-block').forEach(b => b.remove());
+            
+            events.forEach(ev => {
+                const startMins = (parseInt(ev.start.split(':')[0]) * 60) + parseInt(ev.start.split(':')[1]);
+                const duration = ((parseInt(ev.end.split(':')[0]) * 60) + parseInt(ev.end.split(':')[1])) - startMins;
+
+                const draw = (dayIdx) => {
+                    const card = document.getElementById(`day-${dayIdx}`);
+                    if(!card) return;
+                    
+                    const block = document.createElement('div');
+                    block.className = `event-block type-${ev.type}`;
+                    block.style.top = `${startMins + 60}px`; // +60 for the header spacing
+                    block.style.height = `${duration}px`;
+                    block.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <span class="truncate">${ev.name}</span>
+                            <button onclick="deleteEvent(event, ${ev.id})" class="text-[8px] opacity-50">✕</button>
+                        </div>
+                    `;
+                    card.querySelector('.relative').appendChild(block);
+                };
+
+                if(ev.repeat === 'weekly') {
+                    draw(ev.day);
+                } else if(ev.repeat === 'daily') {
+                    for(let i=0; i<7; i++) draw(i);
+                }
+            });
+        }
+
+        function deleteEvent(e, id) {
+            e.stopPropagation();
+            if(confirm("Delete block?")) {
+                events = events.filter(ev => ev.id !== id);
+                renderEvents();
+                saveSchedule();
+            }
+        }
+
+        function changeWeek(days) {
+            viewDate.setDate(viewDate.getDate() + days);
+            updateDisplay();
+            initDayCards();
+        }
+
+        function updateDisplay() {
+            const end = new Date(viewDate);
+            end.setDate(end.getDate() + 6);
+            document.getElementById('weekDisplay').innerText = `${viewDate.getDate()} ${viewDate.toLocaleDateString('en-AU',{month:'short'})} — ${end.getDate()} ${end.toLocaleDateString('en-AU',{month:'short'})}`;
+        }
+
+        function saveSchedule() { localStorage.setItem('bizStudentSchedule', JSON.stringify(events)); }
+        
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('bizStudentSchedule'));
+            if(saved) events = saved;
+            updateDisplay();
+            initDayCards();
+            // Scroll to 8am roughly
+            window.scrollTo(0, 500);
+        };
+    </script>
+</body>
+</html>

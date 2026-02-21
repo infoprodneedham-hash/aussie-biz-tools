@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aussie Tax Invoice Builder | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            main { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+            .invoice-container { border: none !important; box-shadow: none !important; margin: 0 !important; padding: 20px !important; width: 100% !important; }
+        }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+        #logo-preview { max-height: 80px; max-width: 200px; object-fit: contain; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans leading-normal">
+
+    <header class="bg-white border-b sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-black text-blue-600 tracking-tighter" id="hub-logo">BIZTOOLHUB</a>
+            <nav class="hidden md:flex space-x-8 text-sm font-bold text-slate-600">
+                <a href="index.html" class="hover:text-blue-600 transition">All Tools</a>
+                <a href="about.html" class="hover:text-blue-600 transition">Mission</a>
+                <a href="contact.html" class="hover:text-blue-600 transition">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <div class="lg:w-2/5 space-y-6 no-print">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm sticky top-24">
+                    <h2 class="text-lg font-bold mb-4 flex items-center"><span class="mr-2 theme-text text-blue-600">🎨</span> Invoice Branding</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="border-2 border-dashed border-slate-200 rounded-xl p-4 text-center hover:border-blue-400 transition cursor-pointer" onclick="document.getElementById('logoInput').click()">
+                            <p class="text-xs text-slate-400 font-bold uppercase mb-2">Upload Business Logo</p>
+                            <input type="file" id="logoInput" class="hidden" accept="image/*" onchange="handleLogo(this)">
+                            <span class="theme-text text-blue-600 text-xs font-bold">Click to Browse</span>
+                        </div>
+
+                        <div class="pt-2">
+                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Choose Theme Colour</label>
+                            <div class="flex gap-3">
+                                <button onclick="setTheme('blue')" class="w-8 h-8 rounded-full bg-blue-600 border-2 border-white ring-2 ring-slate-100"></button>
+                                <button onclick="setTheme('green')" class="w-8 h-8 rounded-full bg-green-600 border-2 border-white ring-2 ring-slate-100"></button>
+                                <button onclick="setTheme('orange')" class="w-8 h-8 rounded-full bg-orange-500 border-2 border-white ring-2 ring-slate-100"></button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="bizName" placeholder="Business Name" class="p-3 border rounded-lg text-sm outline-none focus:ring-2 theme-ring focus:ring-blue-500" oninput="updateUI()">
+                            <input type="text" id="bizABN" placeholder="ABN" class="p-3 border rounded-lg text-sm outline-none focus:ring-2 theme-ring focus:ring-blue-500" oninput="updateUI()">
+                        </div>
+                        
+                        <div id="item-inputs" class="space-y-3 pt-4 border-t border-slate-100">
+                            <label class="block text-[10px] font-black uppercase text-slate-400">Billable Items</label>
+                        </div>
+                        
+                        <button onclick="addItem()" class="w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-sm font-bold hover:border-blue-300 hover:theme-text hover:text-blue-500 transition">+ Add Item</button>
+
+                        <div class="pt-4 border-t border-slate-100">
+                            <select id="gstType" class="w-full p-3 border rounded-lg text-sm outline-none focus:ring-2 theme-ring focus:ring-blue-500" onchange="calculate()">
+                                <option value="inc">Prices include GST (10%)</option>
+                                <option value="exc">Add GST to total (10%)</option>
+                                <option value="none">No GST</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="bsb" placeholder="BSB" class="p-3 border rounded-lg text-sm outline-none focus:ring-2 theme-ring focus:ring-blue-500" oninput="updateUI()">
+                            <input type="text" id="accNumber" placeholder="Account No." class="p-3 border rounded-lg text-sm outline-none focus:ring-2 theme-ring focus:ring-blue-500" oninput="updateUI()">
+                        </div>
+                        <input type="text" id="payid" placeholder="PayID (Mobile or Email)" class="w-full p-3 border rounded-lg text-sm outline-none focus:ring-2 theme-ring focus:ring-blue-500" oninput="updateUI()">
+                    </div>
+
+                    <button onclick="window.print()" class="w-full mt-8 theme-bg bg-blue-600 text-white font-bold py-4 rounded-xl hover:opacity-90 transition shadow-lg" id="print-btn">Print / Download PDF</button>
+                </div>
+            </div>
+
+            <div class="lg:w-3/5">
+                <div id="invoice" class="invoice-container bg-white p-10 md:p-16 rounded-2xl border border-slate-200 shadow-xl min-h-[1000px] flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-16">
+                            <div>
+                                <img id="logo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="mb-4 hidden">
+                                <h1 class="text-5xl font-black text-slate-900 uppercase tracking-tighter mb-2">Tax Invoice</h1>
+                                <p class="text-slate-500 font-bold tracking-widest text-sm" id="display-bizABN">ABN: 00 000 000 000</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-black theme-text text-blue-600 uppercase" id="display-bizName">YOUR BUSINESS</p>
+                                <p class="text-sm text-slate-500 font-medium mt-1" id="display-date"></p>
+                            </div>
+                        </div>
+
+                        <div class="mb-12">
+                            <p class="text-[10px] uppercase font-black text-slate-400 mb-2 tracking-widest">Bill To:</p>
+                            <p class="text-xl font-bold text-slate-800" id="display-clientName">Client Name</p>
+                        </div>
+
+                        <table class="w-full mb-12">
+                            <thead>
+                                <tr class="border-b-2 border-slate-900 text-left text-xs uppercase tracking-widest text-slate-400">
+                                    <th class="py-4 font-black w-2/3">Description</th>
+                                    <th class="py-4 text-right font-black">Amount (AUD)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="display-items"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row justify-between items-end gap-8 pt-12 border-t border-slate-100">
+                        <div class="w-full md:w-1/2">
+                            <h4 class="text-[10px] uppercase font-black text-slate-400 mb-4 tracking-widest">Payment Instructions</h4>
+                            <div class="grid grid-cols-1 gap-4 bg-slate-50 p-6 rounded-xl border border-slate-100">
+                                <div>
+                                    <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Bank Transfer</p>
+                                    <p class="text-sm">BSB: <span id="display-bsb" class="font-mono font-bold text-slate-800">---</span></p>
+                                    <p class="text-sm">ACC: <span id="display-accNumber" class="font-mono font-bold text-slate-800">---</span></p>
+                                </div>
+                                <div id="payid-section" class="pt-4 border-t border-slate-200 opacity-20">
+                                    <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">PayID</p>
+                                    <p class="text-sm font-black theme-text text-blue-600" id="display-payid">Not Provided</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-64 space-y-3 text-right">
+                            <div class="flex justify-between text-sm font-medium text-slate-500"><span>Subtotal:</span><span id="display-subtotal">$0.00</span></div>
+                            <div class="flex justify-between text-sm font-medium text-slate-500"><span>GST (10%):</span><span id="display-gst">$0.00</span></div>
+                            <div class="flex justify-between text-2xl font-black pt-4 border-t-2 border-slate-900 text-slate-900"><span>Total AUD</span><span id="display-total">$0.00</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let items = [{ desc: "Professional Services", price: 0 }];
+        let currentTheme = 'blue';
+
+        function setTheme(color) {
+            const themes = {
+                blue: { text: 'text-blue-600', bg: 'bg-blue-600', ring: 'focus:ring-blue-500' },
+                green: { text: 'text-green-600', bg: 'bg-green-600', ring: 'focus:ring-green-500' },
+                orange: { text: 'text-orange-500', bg: 'bg-orange-500', ring: 'focus:ring-orange-400' }
+            };
+
+            // Update all elements with theme classes
+            document.querySelectorAll('.theme-text').forEach(el => {
+                el.classList.remove('text-blue-600', 'text-green-600', 'text-orange-500');
+                el.classList.add(themes[color].text);
+            });
+
+            document.querySelectorAll('.theme-bg').forEach(el => {
+                el.classList.remove('bg-blue-600', 'bg-green-600', 'bg-orange-500');
+                el.classList.add(themes[color].bg);
+            });
+
+            document.querySelectorAll('.theme-ring').forEach(el => {
+                el.classList.remove('focus:ring-blue-500', 'focus:ring-green-500', 'focus:ring-orange-400');
+                el.classList.add(themes[color].ring);
+            });
+
+            currentTheme = color;
+        }
+
+        function handleLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('logo-preview');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function addItem() {
+            items.push({ desc: "", price: 0 });
+            renderInputs();
+            calculate();
+        }
+
+        function removeItem(index) {
+            if (items.length > 1) {
+                items.splice(index, 1);
+                renderInputs();
+                calculate();
+            }
+        }
+
+        function renderInputs() {
+            const container = document.getElementById('item-inputs');
+            container.innerHTML = '<label class="block text-[10px] font-black uppercase text-slate-400">Billable Items</label>';
+            items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = "flex gap-2 items-center";
+                div.innerHTML = `
+                    <input type="text" placeholder="Desc" value="${item.desc}" class="w-3/5 p-2 border rounded text-xs outline-none theme-ring" oninput="items[${index}].desc = this.value; updateUI()">
+                    <input type="number" placeholder="$" value="${item.price}" class="w-1/3 p-2 border rounded text-xs outline-none theme-ring" oninput="items[${index}].price = parseFloat(this.value) || 0; calculate()">
+                    <button onclick="removeItem(${index})" class="text-slate-300 hover:text-red-500">✕</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function calculate() {
+            let totalRaw = items.reduce((sum, item) => sum + item.price, 0);
+            let gstType = document.getElementById('gstType').value;
+            let sub, gst, total;
+
+            if (gstType === "inc") {
+                total = totalRaw; sub = total / 1.1; gst = total - sub;
+            } else if (gstType === "exc") {
+                sub = totalRaw; gst = sub * 0.1; total = sub + gst;
+            } else {
+                sub = totalRaw; gst = 0; total = totalRaw;
+            }
+
+            document.getElementById('display-subtotal').innerText = "$" + sub.toFixed(2);
+            document.getElementById('display-gst').innerText = "$" + gst.toFixed(2);
+            document.getElementById('display-total').innerText = "$" + total.toFixed(2);
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('display-bizName').innerText = document.getElementById('bizName').value || "YOUR BUSINESS";
+            document.getElementById('display-bizABN').innerText = "ABN: " + (document.getElementById('bizABN').value || "00 000 000 000");
+            document.getElementById('display-bsb').innerText = document.getElementById('bsb').value || "---";
+            document.getElementById('display-accNumber').innerText = document.getElementById('accNumber').value || "---";
+            
+            const payidVal = document.getElementById('payid').value;
+            const payidSection = document.getElementById('payid-section');
+            if(payidVal) {
+                payidSection.style.opacity = "1";
+                document.getElementById('display-payid').innerText = payidVal;
+            } else {
+                payidSection.style.opacity = "0.2";
+                document.getElementById('display-payid').innerText = "Not Provided";
+            }
+
+            document.getElementById('display-date').innerText = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            const list = document.getElementById('display-items');
+            list.innerHTML = "";
+            items.forEach(item => {
+                const row = `<tr class="border-b border-slate-100"><td class="py-4 font-medium text-slate-700">${item.desc || 'New Item'}</td><td class="py-4 text-right font-bold text-slate-900">$${item.price.toFixed(2)}</td></tr>`;
+                list.innerHTML += row;
+            });
+            
+            // Re-apply theme colors to new dynamic elements
+            setTheme(currentTheme);
+        }
+
+        renderInputs();
+        calculate();
+    </script>
+</body>
+</html>

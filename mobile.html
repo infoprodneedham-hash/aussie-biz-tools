@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Toolkit | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .orange-btn {
+            transition: transform 0.1s active;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .orange-btn:active { transform: scale(0.96); }
+    </style>
+</head>
+<body class="bg-slate-900 text-white font-sans antialiased pb-12">
+
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+        <div class="max-w-xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="bg-orange-500 text-white px-2 py-1 rounded-lg text-[10px] font-black uppercase">MOBILE</span>
+                <h1 class="text-sm font-black tracking-tighter uppercase text-orange-500">BIZTOOLHUB</h1>
+            </div>
+            <a href="index.html" class="text-[9px] font-black uppercase text-slate-400 border border-slate-700 px-3 py-1 rounded-full">Back to Desktop</a>
+        </div>
+    </header>
+
+    <main class="max-w-xl mx-auto p-4">
+        
+        <section class="grid grid-cols-3 gap-3 mb-8">
+            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 text-center">
+                <span class="block text-[8px] font-black text-slate-500 uppercase">Mileage</span>
+                <p id="stat-mileage" class="text-xl font-black text-white">0</p>
+            </div>
+            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 text-center">
+                <span class="block text-[8px] font-black text-slate-500 uppercase">Leads</span>
+                <p id="stat-leads" class="text-xl font-black text-orange-400">0</p>
+            </div>
+            <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 text-center">
+                <span class="block text-[8px] font-black text-slate-500 uppercase">Jobs</span>
+                <p id="stat-jobs" class="text-xl font-black text-orange-400">0</p>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <a href="m-vehicles.html" class="orange-btn bg-orange-500 p-8 rounded-[40px] text-center">
+                    <span class="text-4xl block mb-2">🚚</span>
+                    <span class="text-xs font-black uppercase tracking-widest">Fleet Log</span>
+                </a>
+                <a href="m-bookings.html" class="orange-btn bg-orange-500 p-8 rounded-[40px] text-center">
+                    <span class="text-4xl block mb-2">📅</span>
+                    <span class="text-xs font-black uppercase tracking-widest">Bookings</span>
+                </a>
+                <a href="m-diet.html" class="orange-btn bg-orange-600 p-8 rounded-[40px] text-center">
+                    <span class="text-4xl block mb-2">🥗</span>
+                    <span class="text-xs font-black uppercase tracking-widest">Diet Log</span>
+                </a>
+                <a href="m-medical.html" class="orange-btn bg-orange-600 p-8 rounded-[40px] text-center">
+                    <span class="text-4xl block mb-2">🏥</span>
+                    <span class="text-xs font-black uppercase tracking-widest">Health Hub</span>
+                </a>
+            </div>
+
+            <div class="flex flex-col gap-3 pt-2">
+                <a href="m-marketing.html" class="bg-slate-800 border border-orange-500/30 p-5 rounded-3xl flex justify-between items-center px-8">
+                    <span class="text-xs font-black uppercase tracking-widest">Marketing Pipeline</span>
+                    <span class="text-xl">📢</span>
+                </a>
+                <a href="m-schedule.html" class="bg-slate-800 border border-orange-500/30 p-5 rounded-3xl flex justify-between items-center px-8">
+                    <span class="text-xs font-black uppercase tracking-widest">Weekly Schedule</span>
+                    <span class="text-xl">⏳</span>
+                </a>
+                <a href="m-exercise.html" class="bg-slate-800 border border-orange-500/30 p-5 rounded-3xl flex justify-between items-center px-8">
+                    <span class="text-xs font-black uppercase tracking-widest">Training Log</span>
+                    <span class="text-xl">💪</span>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        window.onload = () => {
+            try {
+                const fleet = JSON.parse(localStorage.getItem('bizFleetManager'));
+                if(fleet && fleet.v1) {
+                    const total = fleet.v1.logs.reduce((sum, l) => sum + (l.dist || 0), 0);
+                    document.getElementById('stat-mileage').innerText = total;
+                }
+                const marketing = JSON.parse(localStorage.getItem('bizMarketingData'));
+                if(marketing && marketing.leads) {
+                    const active = marketing.leads.filter(l => l.status !== 'Sale' && l.status !== 'Lost').length;
+                    document.getElementById('stat-leads').innerText = active;
+                }
+                const bookings = JSON.parse(localStorage.getItem('bizJobBookings'));
+                if(bookings) {
+                    const activeJobs = bookings.filter(j => j.status !== 'completed' && j.status !== 'closed').length;
+                    document.getElementById('stat-jobs').innerText = activeJobs;
+                }
+            } catch (e) { console.log("Stats error"); }
+        };
+    </script>
+</body>
+</html>

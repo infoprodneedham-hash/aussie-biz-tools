@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Health Logistics | BizToolHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .active-tab { border-bottom: 4px solid #2563eb; color: #2563eb; font-weight: 900; }
+        
+        /* Status Pills */
+        .pill-gp { background: #eff6ff; color: #2563eb; }
+        .pill-specialist { background: #f3e8ff; color: #7e22ce; }
+        .pill-allied { background: #f0fdf4; color: #15803d; }
+        .pill-dental { background: #fffbeb; color: #b45309; }
+
+        input, select, textarea { font-size: 16px !important; } /* Prevent iOS Zoom */
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased pb-20">
+
+    <header class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-14 flex justify-between items-center">
+            <a href="index.html" class="text-sm font-black text-blue-600 uppercase tracking-tighter">BIZTOOLHUB</a>
+            <div class="flex gap-4">
+                <button onclick="saveAll()" class="text-blue-600 text-[10px] font-black uppercase">Save All</button>
+                <a href="index.html" class="text-slate-400 text-[10px] font-black uppercase">Exit</a>
+            </div>
+        </div>
+        <div class="flex bg-white border-b no-print">
+            <button onclick="switchTab('active')" class="tab-btn active-tab flex-1 py-3 text-[10px] font-black uppercase tracking-widest" id="btn-active">Daily Meds</button>
+            <button onclick="switchTab('appts')" class="tab-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400" id="btn-appts">Appts & Issues</button>
+            <button onclick="switchTab('admin')" class="tab-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400" id="btn-admin">Admin</button>
+        </div>
+    </header>
+
+    <main class="p-4 space-y-6">
+        
+        <div id="section-active" class="tab-content active space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xs font-black uppercase tracking-widest text-slate-400">Medications</h2>
+                <button onclick="addMed()" class="text-blue-600 text-[10px] font-black uppercase">+ Add Med</button>
+            </div>
+            <div id="med-list" class="space-y-3">
+                </div>
+        </div>
+
+        <div id="section-appts" class="tab-content space-y-6">
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xs font-black uppercase tracking-widest text-slate-400">Upcoming Visits</h2>
+                    <button onclick="addAppt()" class="bg-slate-900 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold">+ New Appt</button>
+                </div>
+                <div id="appt-list" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-blue-600 p-5 rounded-3xl shadow-lg text-white space-y-4">
+                <div class="flex justify-between items-center border-b border-blue-500 pb-3">
+                    <h2 class="text-[10px] font-black uppercase tracking-widest text-blue-200">GP Discussion List</h2>
+                    <span class="text-xl">🩺</span>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="newIssue" placeholder="Note for Doctor..." class="flex-1 bg-blue-700/50 border border-blue-500 p-3 rounded-xl text-sm placeholder-blue-300 outline-none">
+                    <button onclick="addIssue()" class="bg-white text-blue-600 px-4 py-2 rounded-xl text-xs font-black shadow-md">Add</button>
+                </div>
+                <ul id="issue-list" class="space-y-2"></ul>
+            </div>
+        </div>
+
+        <div id="section-admin" class="tab-content space-y-4">
+            <h2 class="text-xs font-black uppercase tracking-widest text-slate-400">Renewals & Tasks</h2>
+            <div id="admin-list" class="space-y-3"></div>
+            <button onclick="resetData()" class="w-full mt-10 text-red-400 text-[10px] font-black uppercase">Wipe Health Data</button>
+        </div>
+
+    </main>
+
+    <script>
+        let appts = [];
+        let meds = [];
+        let issues = [];
+        let adminTasks = [
+            { id: 1, name: "Medicare Update", date: "" },
+            { id: 2, name: "Specialist Referral", date: "" },
+            { id: 3, name: "Dental Checkup", date: "" },
+            { id: 4, name: "Vaccinations", date: "" }
+        ];
+        
+        const typeStyles = {
+            'GP / General / Other Health Professional': 'pill-gp',
+            'Specialist': 'pill-specialist',
+            'Physio/Allied': 'pill-allied',
+            'Dental/Optom': 'pill-dental'
+        };
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab', 'text-blue-600'));
+            document.getElementById('section-'+id).classList.add('active');
+            document.getElementById('btn-'+id).classList.add('active-tab');
+        }
+
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('bizHealthHubV2'));
+            if(saved) {
+                appts = saved.appts || []; meds = saved.meds || []; issues = saved.issues || [];
+                if(saved.adminTasks) saved.adminTasks.forEach(st => {
+                    const t = adminTasks.find(x => x.id === st.id); if(t) t.date = st.date;
+                });
+            }
+            renderAll();
+        };
+
+        function renderAll() { renderAppts(); renderMeds(); renderIssues(); renderAdmin(); }
+        function silentSave() { localStorage.setItem('bizHealthHubV2', JSON.stringify({ appts, meds, issues, adminTasks })); }
+        function saveAll() { silentSave(); alert("Saved!"); }
+
+        function addMed() {
+            meds.push({ id: Date.now(), name: '', freq: 'Daily', scriptsLeft: 1 });
+            renderMeds();
+        }
+
+        function renderMeds() {
+            document.getElementById('med-list').innerHTML = meds.map(m => `
+                <div class="bg-white p-4 rounded-2xl border ${m.scriptsLeft <= 0 ? 'border-red-200 bg-red-50/20' : 'border-slate-200'} shadow-sm space-y-3">
+                    <div class="flex justify-between items-center">
+                        <input type="text" value="${m.name}" oninput="updateMed(${m.id}, 'name', this.value)" placeholder="Drug Name" class="font-black text-sm bg-transparent outline-none flex-1">
+                        <button onclick="removeMed(${m.id})" class="text-slate-300 ml-2">✕</button>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-50">
+                        <select onchange="updateMed(${m.id}, 'freq', this.value)" class="text-[10px] font-bold text-slate-500 bg-slate-50 p-2 rounded-lg outline-none">
+                            <option value="Daily" ${m.freq==='Daily'?'selected':''}>Daily</option>
+                            <option value="As Needed" ${m.freq==='As Needed'?'selected':''}>As Needed</option>
+                        </select>
+                        <div class="flex items-center gap-3">
+                            <span class="text-[9px] font-black uppercase text-slate-400">Scripts:</span>
+                            <div class="flex items-center bg-white rounded-lg border border-slate-200 overflow-hidden">
+                                <button onclick="changeScripts(${m.id}, -1)" class="px-3 py-1 font-black">-</button>
+                                <span class="px-2 font-black text-xs">${m.scriptsLeft}</span>
+                                <button onclick="changeScripts(${m.id}, 1)" class="px-3 py-1 font-black">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
+
+        function addAppt() {
+            appts.push({ id: Date.now(), doctor: '', type: 'GP / General / Other Health Professional', date: '', time: '' });
+            renderAppts();
+        }
+
+        function renderAppts() {
+            document.getElementById('appt-list').innerHTML = appts.map(a => `
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="flex justify-between items-center">
+                        <input type="text" value="${a.doctor}" oninput="updateAppt(${a.id}, 'doctor', this.value)" placeholder="Doctor/Clinic" class="font-black text-sm bg-transparent outline-none flex-1">
+                        <button onclick="removeAppt(${a.id})" class="text-slate-300">✕</button>
+                    </div>
+                    <select onchange="updateAppt(${a.id}, 'type', this.value)" class="w-full text-[10px] font-black uppercase p-2 rounded-lg border-none ${typeStyles[a.type]}">
+                        ${Object.keys(typeStyles).map(t => `<option value="${t}" ${a.type===t?'selected':''}>${t}</option>`).join('')}
+                    </select>
+                    <div class="flex gap-2">
+                        <input type="date" value="${a.date}" onchange="updateAppt(${a.id}, 'date', this.value)" class="flex-1 text-[10px] font-bold p-2 bg-slate-50 rounded-lg">
+                        <input type="time" value="${a.time}" onchange="updateAppt(${a.id}, 'time', this.value)" class="w-24 text-[10px] font-bold p-2 bg-slate-50 rounded-lg">
+                    </div>
+                </div>`).join('');
+        }
+
+        function addIssue() {
+            const val = document.getElementById('newIssue').value;
+            if(!val) return;
+            issues.push({ id: Date.now(), text: val });
+            document.getElementById('newIssue').value = '';
+            renderIssues(); silentSave();
+        }
+
+        function renderIssues() {
+            document.getElementById('issue-list').innerHTML = issues.map(iss => `
+                <li class="flex justify-between items-center bg-blue-700/30 p-3 rounded-xl border border-blue-400/50">
+                    <span class="text-xs font-bold">${iss.text}</span>
+                    <button onclick="removeIssue(${iss.id})" class="text-blue-300 ml-2">✕</button>
+                </li>`).join('');
+        }
+
+        function renderAdmin() {
+            document.getElementById('admin-list').innerHTML = adminTasks.map(t => `
+                <div class="bg-white p-3 rounded-2xl border border-slate-200 flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-black text-slate-700 uppercase tracking-tight">${t.name}</span>
+                        <span class="text-[8px] font-black uppercase ${t.date ? 'text-green-500' : 'text-slate-300'}">${t.date ? 'Set' : 'Pending'}</span>
+                    </div>
+                    <input type="date" value="${t.date}" onchange="updateAdminDate(${t.id}, this.value)" class="text-[10px] font-bold p-2 bg-slate-50 rounded-lg w-full">
+                </div>`).join('');
+        }
+
+        function updateMed(id, f, v) { meds.find(x => x.id === id)[f] = v; silentSave(); }
+        function removeMed(id) { meds = meds.filter(x => x.id !== id); renderMeds(); silentSave(); }
+        function changeScripts(id, val) { const m = meds.find(x => x.id === id); m.scriptsLeft = Math.max(0, m.scriptsLeft + val); renderMeds(); silentSave(); }
+        function updateAppt(id, f, v) { appts.find(x => x.id === id)[f] = v; silentSave(); }
+        function removeAppt(id) { appts = appts.filter(x => x.id !== id); renderAppts(); silentSave(); }
+        function removeIssue(id) { issues = issues.filter(x => x.id !== id); renderIssues(); silentSave(); }
+        function updateAdminDate(id, v) { adminTasks.find(x => x.id === id).date = v; silentSave(); renderAdmin(); }
+        function resetData() { if(confirm("Wipe all data?")) { localStorage.removeItem('bizHealthHubV2'); location.reload(); } }
+    </script>
+</body>
+</html>
