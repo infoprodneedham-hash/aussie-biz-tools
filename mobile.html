@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mobile Toolkit | BizToolHub</title>
+    <title>Mobile Stack | BizToolHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .m-app-link {
-            @apply flex items-center justify-between w-full bg-orange-500 hover:bg-orange-600 active:scale-[0.98] transition-all p-8 rounded-[30px] shadow-lg border-b-4 border-orange-700;
+        .stack-btn {
+            @apply block w-full bg-orange-500 hover:bg-orange-600 active:scale-[0.98] transition-all 
+                   p-10 rounded-[25px] text-center shadow-xl border-b-8 border-orange-700 mb-4;
         }
-        .nav-text { @apply text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-white; }
+        .stack-btn span { @apply text-2xl font-black uppercase tracking-tighter text-white block; }
+        .nav-link { @apply text-[11px] font-black uppercase tracking-widest text-slate-500; }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans antialiased flex flex-col min-h-screen">
@@ -18,76 +20,65 @@
         <div class="max-w-xl mx-auto px-6 h-16 flex justify-between items-center">
             <h1 class="text-xs font-black uppercase text-orange-500 tracking-tighter">BTH MOBILE</h1>
             <nav class="flex gap-6">
-                <a href="index.html" class="nav-text">Dashboard</a>
-                <a href="about.html" class="nav-text">About</a>
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="about.html" class="nav-link">About</a>
             </nav>
         </div>
     </header>
 
-    <main class="max-w-xl mx-auto p-6 flex-grow w-full space-y-4">
+    <main class="max-w-xl mx-auto p-6 flex-grow w-full">
         
-        <a href="m-budget.html" class="m-app-link">
-            <span class="text-xl font-black uppercase tracking-tighter">Business Budget</span>
-            <span class="text-4xl">💰</span>
+        <a href="m-budget.html" class="stack-btn">
+            <span>💰 Business Budget</span>
         </a>
 
-        <a href="m-invoices.html" class="m-app-link">
-            <span class="text-xl font-black uppercase tracking-tighter">Invoicing Tool</span>
-            <span class="text-4xl">📄</span>
+        <a href="m-invoices.html" class="stack-btn">
+            <span>📄 Invoicing Tool</span>
         </a>
 
-        <a href="m-bookings.html" class="m-app-link">
-            <span class="text-xl font-black uppercase tracking-tighter">Booking Queue</span>
-            <span class="text-4xl">📅</span>
+        <a href="m-bookings.html" class="stack-btn">
+            <span>📅 Booking Queue</span>
         </a>
 
-        <a href="m-vehicles.html" class="m-app-link">
-            <span class="text-xl font-black uppercase tracking-tighter">Fleet & Mileage</span>
-            <span class="text-4xl">🚚</span>
+        <a href="m-vehicles.html" class="stack-btn">
+            <span>🚚 Fleet & Mileage</span>
         </a>
 
-        <a href="m-schedule.html" class="m-app-link">
-            <span class="text-xl font-black uppercase tracking-tighter">Weekly Schedule</span>
-            <span class="text-4xl">⏳</span>
+        <a href="m-schedule.html" class="stack-btn">
+            <span>⏳ Weekly Schedule</span>
         </a>
 
-        <a href="m-marketing.html" class="m-app-link">
-            <span class="text-xl font-black uppercase tracking-tighter">Marketing Hub</span>
-            <span class="text-4xl">📢</span>
+        <a href="m-marketing.html" class="stack-btn">
+            <span>📢 Marketing Hub</span>
         </a>
 
-        <a href="m-diet.html" class="m-app-link">
-            <span class="text-xl font-black uppercase tracking-tighter">Diet & Macros</span>
-            <span class="text-4xl">🥗</span>
+        <a href="m-diet.html" class="stack-btn">
+            <span>🥗 Diet & Macros</span>
         </a>
 
-        <a href="m-exercise.html" class="m-app-link">
-            <span class="text-xl font-black uppercase tracking-tighter">Exercise Log</span>
-            <span class="text-4xl">💪</span>
+        <a href="m-exercise.html" class="stack-btn">
+            <span>💪 Exercise Log</span>
         </a>
 
-        <a href="m-medical.html" class="m-app-link">
-            <span class="text-xl font-black uppercase tracking-tighter">Medical Log</span>
-            <span class="text-4xl">🏥</span>
+        <a href="m-medical.html" class="stack-btn">
+            <span>🏥 Medical Log</span>
         </a>
 
     </main>
 
-    <footer class="bg-black py-12 px-6 border-t border-slate-800">
-        <div class="max-w-xl mx-auto text-center">
-            <nav class="flex justify-center gap-8 mb-10">
-                <a href="privacy.html" class="nav-text">Privacy</a>
-                <a href="terms.html" class="nav-text">Terms</a>
-                <a href="contact.html" class="nav-text">Contact</a>
-            </nav>
+    <footer class="bg-black py-12 px-6 border-t border-slate-800 mt-auto text-center">
+        <nav class="flex justify-center gap-8 mb-10">
+            <a href="privacy.html" class="nav-link">Privacy</a>
+            <a href="terms.html" class="nav-link">Terms</a>
+            <a href="contact.html" class="nav-link">Contact</a>
+        </nav>
 
-            <div class="pt-6 border-t border-zinc-900">
-                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-4 text-zinc-500">Usage Disclaimer</h4>
-                <p class="text-[9px] leading-relaxed text-zinc-600 uppercase font-bold max-w-xs mx-auto">
-                    Data is stored locally. Users are responsible for data accuracy and regulatory compliance. 
-                    Build 2.6 // Geelong, Victoria
-                </p>
-            </div>
+        <div class="pt-6 border-t border-zinc-900">
+            <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-4 text-zinc-600">Usage Disclaimer</h4>
+            <p class="text-[9px] leading-relaxed text-zinc-700 uppercase font-bold max-w-xs mx-auto">
+                Local storage active. All data remains on this device. Verify business and health metrics manually. 
+                <br>Build 2.6 // Geelong, VIC
+            </p>
         </div>
     </footer>
 
