@@ -8,7 +8,6 @@
     <style>
         .tool-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .tool-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-        .disclaimer-bw { background-color: #000; color: #fff; }
         .nav-link { @apply text-slate-500 hover:text-blue-600 font-bold text-[10px] uppercase tracking-widest transition-colors; }
     </style>
 </head>
@@ -23,7 +22,7 @@
                 </a>
             </div>
             
-            <nav class="flex items-center gap-4 md:gap-8">
+            <nav class="hidden md:flex items-center gap-8">
                 <a href="index.html" class="nav-link text-blue-600">Dashboard</a>
                 <a href="about.html" class="nav-link">About</a>
                 <a href="privacy.html" class="nav-link">Privacy</a>
@@ -45,8 +44,7 @@
 
         <h2 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-8 px-2">Desktop Management Suite</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
-            
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             <a href="budget.html" class="tool-card bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm">
                 <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl mb-6">💰</div>
                 <h3 class="text-xl font-black tracking-tight">Business Budget</h3>
@@ -109,28 +107,43 @@
                 <p class="text-sm text-slate-500 mt-2">Scripts, doctor notes, and health tracking.</p>
                 <div class="mt-6 text-red-600 font-black text-[10px] uppercase tracking-widest">Health Record →</div>
             </a>
-
         </div>
     </main>
 
-    <footer class="disclaimer-bw pt-16 pb-8 px-6 border-t border-zinc-800">
-        <div class="max-w-7xl mx-auto text-center">
+    <footer class="bg-zinc-950 text-zinc-400 py-16 px-6 border-t border-zinc-800">
+        <div class="max-w-7xl mx-auto">
             
-            <div class="flex flex-wrap justify-center gap-6 mb-10">
-                <a href="index.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">Dashboard</a>
-                <a href="about.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">About</a>
-                <a href="privacy.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">Privacy</a>
-                <a href="terms.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">Terms</a>
-                <a href="contact.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">Contact</a>
+            <div class="flex flex-wrap justify-center gap-8 mb-16">
+                <a href="index.html" class="text-xs font-black uppercase tracking-widest hover:text-white transition-colors">Dashboard</a>
+                <a href="about.html" class="text-xs font-black uppercase tracking-widest hover:text-white transition-colors">About</a>
+                <a href="privacy.html" class="text-xs font-black uppercase tracking-widest hover:text-white transition-colors">Privacy</a>
+                <a href="terms.html" class="text-xs font-black uppercase tracking-widest hover:text-white transition-colors">Terms</a>
+                <a href="contact.html" class="text-xs font-black uppercase tracking-widest hover:text-white transition-colors">Contact</a>
             </div>
 
-            <h4 class="text-xs font-black uppercase tracking-[0.3em] mb-6 text-zinc-500">Usage Disclaimer</h4>
-            <div class="max-w-3xl mx-auto text-[11px] leading-relaxed opacity-60 uppercase font-medium text-zinc-400">
-                <p>This software is provided "as is" for administrative assistance. All business finance, vehicle mileage, and health data is stored locally. Users are responsible for regulatory compliance and independent data backups. Continued use implies acceptance of terms.</p>
-                <p class="mt-6 border-t border-zinc-900 pt-6 text-zinc-600">
-                    System Build: 2026.02 // Geelong, Victoria
-                </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-[11px] leading-relaxed">
+                <div>
+                    <h4 class="text-white font-black uppercase tracking-widest mb-3">Your Data is Yours</h4>
+                    <p>We fiercely value your privacy. BizToolHub does not track, collect, or transmit your personal information to any servers. All data is processed and stored exclusively within your device's local browser memory.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-black uppercase tracking-widest mb-3">Data Loss Warning</h4>
+                    <p>Your records only exist on the specific device and browser you are using. If you wipe your browser cache, site data, or history, your records will be permanently erased. We strongly advise manually backing up critical data.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-black uppercase tracking-widest mb-3">Estimator Use Only</h4>
+                    <p>These free applications are designed to act as administrative guides and estimators only. You must manually fact-check and verify all calculations, outputs, and generated logs before relying on them.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-black uppercase tracking-widest mb-3">No Professional Advice</h4>
+                    <p>BizToolHub is a self-managed utility suite. It does not replace certified financial, legal, or medical advice. By using this software, you acknowledge that you assume all responsibility and liability for its use.</p>
+                </div>
             </div>
+
+            <div class="mt-16 pt-6 border-t border-zinc-900 text-center text-[10px] uppercase font-bold tracking-widest text-zinc-600">
+                System Build: 2026.02 // Geelong, Victoria // Free Field Utility
+            </div>
+            
         </div>
     </footer>
 
