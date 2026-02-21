@@ -6,91 +6,85 @@
     <title>Mobile Toolkit | BizToolHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .mobile-touch-btn {
-            @apply flex items-center gap-6 bg-slate-800 border-2 border-slate-700 p-8 rounded-[32px] transition-all active:scale-[0.97] active:bg-orange-600 active:border-orange-400 shadow-lg;
+        .m-app-link {
+            @apply flex items-center justify-between w-full bg-orange-500 hover:bg-orange-600 active:scale-[0.98] transition-all p-8 rounded-[30px] shadow-lg border-b-4 border-orange-700;
         }
-        .nav-link-m { @apply text-[11px] font-black uppercase tracking-[0.1em] text-slate-500 active:text-orange-500; }
+        .nav-text { @apply text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-white; }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans antialiased flex flex-col min-h-screen">
 
     <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
         <div class="max-w-xl mx-auto px-6 h-16 flex justify-between items-center">
-            <a href="mobile.html" class="text-xs font-black uppercase text-orange-500 tracking-tighter">BTH MOBILE</a>
+            <h1 class="text-xs font-black uppercase text-orange-500 tracking-tighter">BTH MOBILE</h1>
             <nav class="flex gap-6">
-                <a href="index.html" class="nav-link-m">Desktop</a>
-                <a href="m-about.html" class="nav-link-m">About</a>
+                <a href="index.html" class="nav-text">Dashboard</a>
+                <a href="about.html" class="nav-text">About</a>
             </nav>
         </div>
     </header>
 
-    <main class="max-w-xl mx-auto p-4 flex-grow w-full space-y-4">
+    <main class="max-w-xl mx-auto p-6 flex-grow w-full space-y-4">
         
-        <a href="m-vehicles.html" class="mobile-touch-btn border-orange-500/50">
-            <span class="text-5xl">🚚</span>
-            <div class="text-left">
-                <span class="block text-lg font-black uppercase tracking-tight leading-none">Fleet Log</span>
-                <span class="text-[10px] text-orange-400 font-bold uppercase tracking-widest mt-1 block">Mileage & Fuel</span>
-            </div>
+        <a href="m-budget.html" class="m-app-link">
+            <span class="text-xl font-black uppercase tracking-tighter">Business Budget</span>
+            <span class="text-4xl">💰</span>
         </a>
 
-        <a href="m-bookings.html" class="mobile-touch-btn border-orange-500/50">
-            <span class="text-5xl">📅</span>
-            <div class="text-left">
-                <span class="block text-lg font-black uppercase tracking-tight leading-none">Job Bookings</span>
-                <span class="text-[10px] text-orange-400 font-bold uppercase tracking-widest mt-1 block">Appointments</span>
-            </div>
+        <a href="m-invoices.html" class="m-app-link">
+            <span class="text-xl font-black uppercase tracking-tighter">Invoicing Tool</span>
+            <span class="text-4xl">📄</span>
         </a>
 
-        <div class="grid grid-cols-2 gap-4">
-            <a href="m-budget.html" class="mobile-touch-btn flex-col p-6 text-center justify-center">
-                <span class="text-4xl mb-2">💰</span>
-                <span class="text-xs font-black uppercase">Budget</span>
-            </a>
-            <a href="m-invoices.html" class="mobile-touch-btn flex-col p-6 text-center justify-center">
-                <span class="text-4xl mb-2">📄</span>
-                <span class="text-xs font-black uppercase">Invoices</span>
-            </a>
-        </div>
-
-        <a href="m-marketing.html" class="mobile-touch-btn">
-            <span class="text-4xl">📢</span>
-            <span class="text-sm font-black uppercase tracking-widest">Marketing Leads</span>
+        <a href="m-bookings.html" class="m-app-link">
+            <span class="text-xl font-black uppercase tracking-tighter">Booking Queue</span>
+            <span class="text-4xl">📅</span>
         </a>
 
-        <a href="m-schedule.html" class="mobile-touch-btn">
+        <a href="m-vehicles.html" class="m-app-link">
+            <span class="text-xl font-black uppercase tracking-tighter">Fleet & Mileage</span>
+            <span class="text-4xl">🚚</span>
+        </a>
+
+        <a href="m-schedule.html" class="m-app-link">
+            <span class="text-xl font-black uppercase tracking-tighter">Weekly Schedule</span>
             <span class="text-4xl">⏳</span>
-            <span class="text-sm font-black uppercase tracking-widest">Weekly Schedule</span>
         </a>
 
-        <div class="grid grid-cols-3 gap-3">
-            <a href="m-diet.html" class="mobile-touch-btn flex-col p-4 text-center justify-center rounded-[24px]">
-                <span class="text-3xl mb-1">🥗</span>
-                <span class="text-[9px] font-black uppercase">Diet</span>
-            </a>
-            <a href="m-exercise.html" class="mobile-touch-btn flex-col p-4 text-center justify-center rounded-[24px]">
-                <span class="text-3xl mb-1">💪</span>
-                <span class="text-[9px] font-black uppercase">Training</span>
-            </a>
-            <a href="m-medical.html" class="mobile-touch-btn flex-col p-4 text-center justify-center rounded-[24px]">
-                <span class="text-3xl mb-1">🏥</span>
-                <span class="text-[9px] font-black uppercase">Health</span>
-            </a>
-        </div>
+        <a href="m-marketing.html" class="m-app-link">
+            <span class="text-xl font-black uppercase tracking-tighter">Marketing Hub</span>
+            <span class="text-4xl">📢</span>
+        </a>
+
+        <a href="m-diet.html" class="m-app-link">
+            <span class="text-xl font-black uppercase tracking-tighter">Diet & Macros</span>
+            <span class="text-4xl">🥗</span>
+        </a>
+
+        <a href="m-exercise.html" class="m-app-link">
+            <span class="text-xl font-black uppercase tracking-tighter">Exercise Log</span>
+            <span class="text-4xl">💪</span>
+        </a>
+
+        <a href="m-medical.html" class="m-app-link">
+            <span class="text-xl font-black uppercase tracking-tighter">Medical Log</span>
+            <span class="text-4xl">🏥</span>
+        </a>
 
     </main>
 
     <footer class="bg-black py-12 px-6 border-t border-slate-800">
         <div class="max-w-xl mx-auto text-center">
             <nav class="flex justify-center gap-8 mb-10">
-                <a href="m-privacy.html" class="nav-link-m">Privacy</a>
-                <a href="m-terms.html" class="nav-link-m">Terms</a>
-                <a href="m-contact.html" class="nav-link-m">Contact</a>
+                <a href="privacy.html" class="nav-text">Privacy</a>
+                <a href="terms.html" class="nav-text">Terms</a>
+                <a href="contact.html" class="nav-text">Contact</a>
             </nav>
 
-            <div class="pt-6 border-t border-slate-900">
-                <p class="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-loose">
-                    Local Storage Active. Verify critical business data manually. <br>
+            <div class="pt-6 border-t border-zinc-900">
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-4 text-zinc-500">Usage Disclaimer</h4>
+                <p class="text-[9px] leading-relaxed text-zinc-600 uppercase font-bold max-w-xs mx-auto">
+                    Data is stored locally. Users are responsible for data accuracy and regulatory compliance. 
                     Build 2.6 // Geelong, Victoria
                 </p>
             </div>
