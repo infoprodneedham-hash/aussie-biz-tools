@@ -9,7 +9,7 @@
         .tool-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .tool-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
         .disclaimer-bw { background-color: #000; color: #fff; }
-        .nav-link { @apply text-slate-600 hover:text-blue-600 font-bold text-xs uppercase tracking-tighter transition-colors; }
+        .nav-link { @apply text-slate-500 hover:text-blue-600 font-bold text-[10px] uppercase tracking-widest transition-colors; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased flex flex-col min-h-screen">
@@ -23,17 +23,12 @@
                 </a>
             </div>
             
-            <nav class="hidden md:flex items-center gap-6">
-                <a href="budget.html" class="nav-link">Budget</a>
-                <a href="invoices.html" class="nav-link">Invoices</a>
-                <a href="bookings.html" class="nav-link">Jobs</a>
-                <a href="vehicles.html" class="nav-link">Fleet</a>
-                <a href="marketing.html" class="nav-link">Marketing</a>
-                <div class="h-4 w-[1px] bg-slate-200"></div>
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Live</span>
-                </div>
+            <nav class="flex items-center gap-4 md:gap-8">
+                <a href="index.html" class="nav-link text-blue-600">Dashboard</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="privacy.html" class="nav-link">Privacy</a>
+                <a href="terms.html" class="nav-link">Terms</a>
+                <a href="contact.html" class="nav-link">Contact</a>
             </nav>
         </div>
     </header>
@@ -44,13 +39,14 @@
             <a href="mobile.html" class="group block w-full bg-orange-500 hover:bg-orange-600 text-white p-10 rounded-[40px] text-center shadow-2xl transition-all border-4 border-orange-400">
                 <span class="text-5xl block mb-3 group-hover:scale-110 transition-transform">📱</span>
                 <span class="text-3xl font-black uppercase tracking-tighter">GO TO MOBILE INTERFACE</span>
-                <p class="text-orange-100 text-sm font-bold mt-2 opacity-90 uppercase tracking-widest">High-Contrast Field Toolkit</p>
+                <p class="text-orange-100 text-sm font-bold mt-2 opacity-90 uppercase tracking-widest">Optimized Field Toolkit</p>
             </a>
         </section>
 
         <h2 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-8 px-2">Desktop Management Suite</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+            
             <a href="budget.html" class="tool-card bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm">
                 <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl mb-6">💰</div>
                 <h3 class="text-xl font-black tracking-tight">Business Budget</h3>
@@ -113,26 +109,27 @@
                 <p class="text-sm text-slate-500 mt-2">Scripts, doctor notes, and health tracking.</p>
                 <div class="mt-6 text-red-600 font-black text-[10px] uppercase tracking-widest">Health Record →</div>
             </a>
+
         </div>
     </main>
 
     <footer class="disclaimer-bw pt-16 pb-8 px-6 border-t border-zinc-800">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex flex-wrap justify-center gap-8 mb-12">
-                <a href="privacy.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400 transition-colors">Privacy Policy</a>
-                <a href="terms.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400 transition-colors">Terms of Service</a>
-                <a href="contact.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400 transition-colors">Contact Admin</a>
-                <a href="index.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400 transition-colors">System Dashboard</a>
+        <div class="max-w-7xl mx-auto text-center">
+            
+            <div class="flex flex-wrap justify-center gap-6 mb-10">
+                <a href="index.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">Dashboard</a>
+                <a href="about.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">About</a>
+                <a href="privacy.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">Privacy</a>
+                <a href="terms.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">Terms</a>
+                <a href="contact.html" class="text-[10px] font-black uppercase tracking-widest hover:text-blue-400">Contact</a>
             </div>
 
-            <div class="text-center">
-                <h4 class="text-xs font-black uppercase tracking-[0.3em] mb-6 text-zinc-500">Usage Disclaimer</h4>
-                <div class="max-w-3xl mx-auto text-[11px] leading-relaxed opacity-60 uppercase font-medium text-zinc-400">
-                    <p>This software is provided "as is" for administrative assistance. All business finance, vehicle mileage, and health data is stored locally. Users are responsible for regulatory compliance and independent data backups. Continued use implies acceptance of terms.</p>
-                    <p class="mt-6 border-t border-zinc-900 pt-6 text-zinc-600">
-                        Proprietary System Build: 2026.02 // Geelong, Victoria, Australia
-                    </p>
-                </div>
+            <h4 class="text-xs font-black uppercase tracking-[0.3em] mb-6 text-zinc-500">Usage Disclaimer</h4>
+            <div class="max-w-3xl mx-auto text-[11px] leading-relaxed opacity-60 uppercase font-medium text-zinc-400">
+                <p>This software is provided "as is" for administrative assistance. All business finance, vehicle mileage, and health data is stored locally. Users are responsible for regulatory compliance and independent data backups. Continued use implies acceptance of terms.</p>
+                <p class="mt-6 border-t border-zinc-900 pt-6 text-zinc-600">
+                    System Build: 2026.02 // Geelong, Victoria
+                </p>
             </div>
         </div>
     </footer>
