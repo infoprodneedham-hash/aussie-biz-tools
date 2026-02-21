@@ -6,76 +6,92 @@
     <title>Mobile Toolkit | BizToolHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .mobile-app-btn {
-            @apply flex flex-col items-center justify-center bg-slate-800 border border-slate-700 aspect-square rounded-[32px] transition-all active:scale-95 active:bg-orange-600;
+        .mobile-touch-btn {
+            @apply flex items-center gap-6 bg-slate-800 border-2 border-slate-700 p-8 rounded-[32px] transition-all active:scale-[0.97] active:bg-orange-600 active:border-orange-400 shadow-lg;
         }
+        .nav-link-m { @apply text-[11px] font-black uppercase tracking-[0.1em] text-slate-500 active:text-orange-500; }
     </style>
 </head>
 <body class="bg-slate-900 text-white font-sans antialiased flex flex-col min-h-screen">
 
     <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
-        <div class="max-w-xl mx-auto px-6 h-14 flex justify-between items-center">
-            <h1 class="text-xs font-black uppercase text-orange-500 tracking-tighter">BTH MOBILE</h1>
-            <nav class="flex gap-4">
-                <a href="index.html" class="text-[10px] font-black uppercase text-slate-400">Desktop</a>
-                <a href="m-about.html" class="text-[10px] font-black uppercase text-slate-400">About</a>
+        <div class="max-w-xl mx-auto px-6 h-16 flex justify-between items-center">
+            <a href="mobile.html" class="text-xs font-black uppercase text-orange-500 tracking-tighter">BTH MOBILE</a>
+            <nav class="flex gap-6">
+                <a href="index.html" class="nav-link-m">Desktop</a>
+                <a href="m-about.html" class="nav-link-m">About</a>
             </nav>
         </div>
     </header>
 
-    <main class="max-w-xl mx-auto p-6 flex-grow w-full">
-        <div class="grid grid-cols-3 gap-4">
-            <a href="m-budget.html" class="mobile-app-btn">
-                <span class="text-3xl">💰</span>
-                <span class="text-[9px] font-black uppercase mt-2 text-slate-400">Budget</span>
+    <main class="max-w-xl mx-auto p-4 flex-grow w-full space-y-4">
+        
+        <a href="m-vehicles.html" class="mobile-touch-btn border-orange-500/50">
+            <span class="text-5xl">🚚</span>
+            <div class="text-left">
+                <span class="block text-lg font-black uppercase tracking-tight leading-none">Fleet Log</span>
+                <span class="text-[10px] text-orange-400 font-bold uppercase tracking-widest mt-1 block">Mileage & Fuel</span>
+            </div>
+        </a>
+
+        <a href="m-bookings.html" class="mobile-touch-btn border-orange-500/50">
+            <span class="text-5xl">📅</span>
+            <div class="text-left">
+                <span class="block text-lg font-black uppercase tracking-tight leading-none">Job Bookings</span>
+                <span class="text-[10px] text-orange-400 font-bold uppercase tracking-widest mt-1 block">Appointments</span>
+            </div>
+        </a>
+
+        <div class="grid grid-cols-2 gap-4">
+            <a href="m-budget.html" class="mobile-touch-btn flex-col p-6 text-center justify-center">
+                <span class="text-4xl mb-2">💰</span>
+                <span class="text-xs font-black uppercase">Budget</span>
             </a>
-            <a href="m-invoices.html" class="mobile-app-btn">
-                <span class="text-3xl">📄</span>
-                <span class="text-[9px] font-black uppercase mt-2 text-slate-400">Invoices</span>
-            </a>
-            <a href="m-bookings.html" class="mobile-app-btn border-orange-500/40">
-                <span class="text-3xl">📅</span>
-                <span class="text-[9px] font-black uppercase mt-2 text-orange-500">Jobs</span>
-            </a>
-            <a href="m-vehicles.html" class="mobile-app-btn border-orange-500/40">
-                <span class="text-3xl">🚚</span>
-                <span class="text-[9px] font-black uppercase mt-2 text-orange-500">Fleet</span>
-            </a>
-            <a href="m-schedule.html" class="mobile-app-btn">
-                <span class="text-3xl">⏳</span>
-                <span class="text-[9px] font-black uppercase mt-2 text-slate-400">Schedule</span>
-            </a>
-            <a href="m-marketing.html" class="mobile-app-btn">
-                <span class="text-3xl">📢</span>
-                <span class="text-[9px] font-black uppercase mt-2 text-slate-400">Leads</span>
-            </a>
-            <a href="m-diet.html" class="mobile-app-btn">
-                <span class="text-3xl">🥗</span>
-                <span class="text-[9px] font-black uppercase mt-2 text-slate-400">Diet</span>
-            </a>
-            <a href="m-exercise.html" class="mobile-app-btn">
-                <span class="text-3xl">💪</span>
-                <span class="text-[9px] font-black uppercase mt-2 text-slate-400">Training</span>
-            </a>
-            <a href="m-medical.html" class="mobile-app-btn">
-                <span class="text-3xl">🏥</span>
-                <span class="text-[9px] font-black uppercase mt-2 text-slate-400">Health</span>
+            <a href="m-invoices.html" class="mobile-touch-btn flex-col p-6 text-center justify-center">
+                <span class="text-4xl mb-2">📄</span>
+                <span class="text-xs font-black uppercase">Invoices</span>
             </a>
         </div>
+
+        <a href="m-marketing.html" class="mobile-touch-btn">
+            <span class="text-4xl">📢</span>
+            <span class="text-sm font-black uppercase tracking-widest">Marketing Leads</span>
+        </a>
+
+        <a href="m-schedule.html" class="mobile-touch-btn">
+            <span class="text-4xl">⏳</span>
+            <span class="text-sm font-black uppercase tracking-widest">Weekly Schedule</span>
+        </a>
+
+        <div class="grid grid-cols-3 gap-3">
+            <a href="m-diet.html" class="mobile-touch-btn flex-col p-4 text-center justify-center rounded-[24px]">
+                <span class="text-3xl mb-1">🥗</span>
+                <span class="text-[9px] font-black uppercase">Diet</span>
+            </a>
+            <a href="m-exercise.html" class="mobile-touch-btn flex-col p-4 text-center justify-center rounded-[24px]">
+                <span class="text-3xl mb-1">💪</span>
+                <span class="text-[9px] font-black uppercase">Training</span>
+            </a>
+            <a href="m-medical.html" class="mobile-touch-btn flex-col p-4 text-center justify-center rounded-[24px]">
+                <span class="text-3xl mb-1">🏥</span>
+                <span class="text-[9px] font-black uppercase">Health</span>
+            </a>
+        </div>
+
     </main>
 
-    <footer class="bg-black py-10 px-6 mt-6 border-t border-slate-800">
+    <footer class="bg-black py-12 px-6 border-t border-slate-800">
         <div class="max-w-xl mx-auto text-center">
-            <nav class="flex justify-center gap-6 mb-8">
-                <a href="m-privacy.html" class="text-[10px] font-black uppercase tracking-widest text-slate-500">Privacy</a>
-                <a href="m-terms.html" class="text-[10px] font-black uppercase tracking-widest text-slate-500">Terms</a>
-                <a href="m-contact.html" class="text-[10px] font-black uppercase tracking-widest text-slate-500">Contact</a>
+            <nav class="flex justify-center gap-8 mb-10">
+                <a href="m-privacy.html" class="nav-link-m">Privacy</a>
+                <a href="m-terms.html" class="nav-link-m">Terms</a>
+                <a href="m-contact.html" class="nav-link-m">Contact</a>
             </nav>
 
-            <div class="border-t border-slate-900 pt-6">
-                <h4 class="text-[8px] font-black uppercase tracking-widest text-slate-600 mb-2">Usage Disclaimer</h4>
-                <p class="text-[8px] text-slate-700 uppercase font-bold leading-tight max-w-xs mx-auto">
-                    Data is stored locally. Verify business and health metrics manually. System version 2026.02
+            <div class="pt-6 border-t border-slate-900">
+                <p class="text-[9px] font-bold text-slate-600 uppercase tracking-widest leading-loose">
+                    Local Storage Active. Verify critical business data manually. <br>
+                    Build 2.6 // Geelong, Victoria
                 </p>
             </div>
         </div>
