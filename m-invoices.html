@@ -57,6 +57,9 @@
                     <div class="grid grid-cols-1 gap-3">
                         <input type="text" id="bizName" placeholder="Business Name" class="p-3 bg-slate-50 rounded-xl text-sm outline-none focus:ring-2 theme-ring" oninput="updateUI()">
                         <input type="text" id="bizABN" placeholder="ABN (00 000 000 000)" class="p-3 bg-slate-50 rounded-xl text-sm outline-none focus:ring-2 theme-ring" oninput="updateUI()">
+                        
+                        <input type="text" id="invoiceNo" placeholder="Invoice No. (e.g. 00001)" maxlength="5" class="p-3 bg-slate-50 rounded-xl text-sm outline-none focus:ring-2 theme-ring" oninput="updateUI()">
+                        
                         <input type="text" id="clientName" placeholder="Client Name" class="p-3 bg-slate-50 rounded-xl text-sm outline-none focus:ring-2 theme-ring" oninput="updateUI()">
                     </div>
                 </div>
@@ -95,6 +98,9 @@
                         <div>
                             <img id="logo-preview" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="mb-4 hidden">
                             <h1 class="text-3xl font-black text-slate-900 uppercase tracking-tighter">Tax Invoice</h1>
+                            
+                            <p class="text-[10px] text-slate-500 font-bold mb-1" id="display-invoiceNo">INV: 00001</p>
+                            
                             <p class="text-[10px] text-slate-500 font-bold" id="display-bizABN">ABN: 00 000 000 000</p>
                         </div>
                         <div class="text-right">
@@ -243,6 +249,12 @@
         function updateUI() {
             document.getElementById('display-bizName').innerText = document.getElementById('bizName').value || "YOUR BUSINESS";
             document.getElementById('display-bizABN').innerText = "ABN: " + (document.getElementById('bizABN').value || "00 000 000 000");
+            
+            // NEW: Invoice Number Logic
+            let invRaw = document.getElementById('invoiceNo').value;
+            let invFormatted = invRaw ? invRaw.padStart(5, '0') : "00001";
+            document.getElementById('display-invoiceNo').innerText = "INV: " + invFormatted;
+
             document.getElementById('display-clientName').innerText = document.getElementById('clientName').value || "Client Name";
             document.getElementById('display-bsb').innerText = document.getElementById('bsb').value || "---";
             document.getElementById('display-accNumber').innerText = document.getElementById('accNumber').value || "---";
