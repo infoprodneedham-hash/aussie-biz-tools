@@ -1,0 +1,60 @@
+.biz-share-sidebar {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 9999;
+    background: #f8fafc; /* Light & Bright Base */
+    border: 2px solid #00d4ff; /* Cyber-Lab Cyan border */
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+    padding: 25px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 5px 0 20px rgba(0, 212, 255, 0.2);
+}
+
+.biz-label-vertical {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    color: #0f172a; /* Sharp Navy */
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.biz-share-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.biz-icon {
+    color: #334155;
+    font-size: 1.1rem;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-decoration: none;
+}
+
+/* Hover States with "Cyber" glow */
+.biz-icon:hover {
+    transform: scale(1.1) translateX(8px);
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+}
+
+.linkedin:hover { background: #0077b5; border-color: #0077b5; }
+.facebook:hover { background: #1877f2; border-color: #1877f2; }
+.x-twitter:hover { background: #000000; border-color: #334155; }
+.copy-link:hover { background: #00d4ff; border-color: #00d4ff; }
