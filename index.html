@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BizToolHub | Desktop Admin Suite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -16,13 +17,28 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased flex flex-col min-h-screen">
-<div class="biz-share-sidebar">
-    <div class="biz-label-vertical">BIZ-TOOL-HUB</div>
-    <div class="biz-share-icons">
-        <a href="#" onclick="shareBiz('linkedin')" title="Share Business Tool" class="biz-icon linkedin"><i class="fa-brands fa-linkedin-in"></i></a>
-        <a href="#" onclick="shareBiz('facebook')" title="Share on Facebook" class="biz-icon facebook"><i class="fa-brands fa-facebook-f"></i></a>
-        <a href="#" onclick="shareBiz('twitter')" title="Share on X" class="biz-icon x-twitter"><i class="fa-brands fa-x-twitter"></i></a>
-        <a href="#" onclick="copyBizLink()" title="Copy Business Link" class="biz-icon copy-link" id="bizCopyBtn"><i class="fa-solid fa-link"></i></a>
+<div class="fixed left-0 top-1/2 -translate-y-1/2 z-[100] flex flex-col items-center bg-white border-2 border-l-0 border-blue-600 rounded-r-2xl py-6 px-3 shadow-[10px_0_30px_-15px_rgba(37,99,235,0.3)] transition-all">
+    
+    <div class="[writing-mode:vertical-rl] rotate-180 text-[10px] font-black tracking-[0.2em] text-slate-400 mb-4 uppercase">
+        Share Hub
+    </div>
+
+    <div class="flex flex-col gap-3">
+        <a href="#" onclick="shareBiz('linkedin')" class="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-[#0077b5] hover:text-white hover:scale-110 hover:translate-x-1 transition-all">
+            <i class="fa-brands fa-linkedin-in text-lg"></i>
+        </a>
+        
+        <a href="#" onclick="shareBiz('facebook')" class="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-[#1877f2] hover:text-white hover:scale-110 hover:translate-x-1 transition-all">
+            <i class="fa-brands fa-facebook-f text-lg"></i>
+        </a>
+
+        <a href="#" onclick="shareBiz('twitter')" class="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-black hover:text-white hover:scale-110 hover:translate-x-1 transition-all">
+            <i class="fa-brands fa-x-twitter text-lg"></i>
+        </a>
+
+        <button onclick="copyBizLink()" id="bizCopyBtn" class="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-blue-600 hover:text-white hover:scale-110 hover:translate-x-1 transition-all">
+            <i class="fa-solid fa-link text-lg"></i>
+        </button>
     </div>
 </div>
     <header class="bg-white border-b sticky top-0 z-50">
@@ -224,6 +240,31 @@
             
         </div>
     </footer>
+<script>
+function shareBiz(platform) {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent("Check out BizToolHub - Free professional tools for students and self-employed!");
+    let shareUrl = "";
 
+    if (platform === 'linkedin') shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+    if (platform === 'facebook') shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+    if (platform === 'twitter') shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+
+    window.open(shareUrl, '_blank', 'width=600,height=450');
+}
+
+function copyBizLink() {
+    navigator.clipboard.writeText(window.location.href);
+    const btn = document.getElementById('bizCopyBtn');
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    btn.classList.add('bg-emerald-500', 'text-white');
+    
+    setTimeout(() => { 
+        btn.innerHTML = originalContent;
+        btn.classList.remove('bg-emerald-500', 'text-white');
+    }, 2000);
+}
+</script>
 </body>
 </html>
