@@ -16,7 +16,15 @@
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased flex flex-col min-h-screen">
-
+<div class="biz-share-sidebar">
+    <div class="biz-label-vertical">BIZ-TOOL-HUB</div>
+    <div class="biz-share-icons">
+        <a href="#" onclick="shareBiz('linkedin')" title="Share Business Tool" class="biz-icon linkedin"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="#" onclick="shareBiz('facebook')" title="Share on Facebook" class="biz-icon facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" onclick="shareBiz('twitter')" title="Share on X" class="biz-icon x-twitter"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" onclick="copyBizLink()" title="Copy Business Link" class="biz-icon copy-link" id="bizCopyBtn"><i class="fa-solid fa-link"></i></a>
+    </div>
+</div>
     <header class="bg-white border-b sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
             <div class="flex items-center gap-2">
